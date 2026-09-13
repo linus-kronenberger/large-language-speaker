@@ -1,14 +1,24 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-void main() {
-  //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-  // to see how IntelliJ IDEA suggests fixing it.
-  IO.println(String.format("Hello and welcome!"));
+import java.util.List;
 
-  for (int i = 1; i <= 5; i++) {
-    //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons
-    // .Debugger.Db_set_breakpoint"/> breakpoint
-    // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-    IO.println("i = " + i);
+public class Main {
+  static void main() {
+    Main main = new Main();
+    String prompt = "Hi, I am Linus der";
+    String result = main.generateText(prompt);
+    System.out.println("User: " + prompt);
+    System.out.println("------------------------------");
+    System.out.println("Assistant: " + result);
+  }
+
+  public String generateText(String prompt) {
+    PositionalTokenizer tokenizer = new PositionalTokenizer();
+    List<List<Float>> posEmbeddings = tokenizer.tokenize(prompt);
+    // MultiSelfAttentionProcessor selfAttentionProcessor = new MultiSelfAttentionProcessor();
+    // List<List<Float>> semEmbeddings = selfAttentionProcessor.embedd(List<List<Float>>));
+    // FeedforwardProcessor feedforwarder = new FeedforwardProcessor();
+    // List<List<Float>> meanEmbeddings = feedforwarder.forward(semEmbeddings);
+    // WordPredictor predictor = new WordPredictor();
+    // String nextWord = predictor.predict();
+    return "";
   }
 }
