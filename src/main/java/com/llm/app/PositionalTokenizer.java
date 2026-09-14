@@ -1,3 +1,5 @@
+package com.llm.app;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -12,15 +14,18 @@ public class PositionalTokenizer {
   private final int EMBEDDING_DIMENSIONS = 64;
   private final String DATA_FILE_PATH = "./dataset/speeches.csv";
 
-  public List<List<Float>> tokenize(String sentence) {
+
+  public List<List<Float>> embeddSentence(String sentence) {
     Map<String, Integer> vocabulary = buildVocabulary();
     List<List<Float>> tokenPosEmbeddings = new ArrayList<>(List.of());
     List<String> wordList = List.of(sentence.split(" |(\\n)"));
     wordList.forEach(word -> {
+      // tokenize
       int token = wordEncode(word, vocabulary);
       List<Float> tokenEmbedding = new ArrayList<>(List.of());
       float tokenFloat = (float) token;
       System.out.print("[");
+      // generate positional embedding
       for (int i = 0; i < EMBEDDING_DIMENSIONS; i++) {
         tokenEmbedding.add(tokenFloat);
         System.out.print(tokenFloat + " ");
