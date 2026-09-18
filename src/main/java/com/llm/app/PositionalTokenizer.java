@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.RealVector;
 
 public class PositionalTokenizer {
 
@@ -19,34 +20,33 @@ public class PositionalTokenizer {
 
   public List<List<Float>> embeddSentence(String sentence) {
     Map<String, Integer> vocabulary = buildVocabulary();
+    RealMatrix embeddingMatrix = buildEmbeddingMatrix(vocabulary.keySet().size(), EMBEDDING_DIMENSIONS,100);
     List<List<Float>> tokenPosEmbeddings = new ArrayList<>(List.of());
     List<String> wordList = List.of(sentence.split(" |(\\n)"));
     wordList.forEach(word -> {
 
       // tokenize
-      int token = wordEncode(word, vocabulary);
-      List<Float> tokenEmbedding = new ArrayList<>(List.of());
-      float tokenFloat = (float) token;
+      double[] tokenEmbedding = wordEncode(word, vocabulary, embeddingMatrix);
       System.out.print("[");
 
       // generate positional embedding
       for (int i = 0; i < EMBEDDING_DIMENSIONS; i++) {
-        tokenEmbedding.add(tokenFloat);
-        System.out.print(tokenFloat + " ");
+        System.out.print(tokenEmbedding[i] + " ");
       }
       System.out.println("]");
       System.out.println();
-      tokenPosEmbeddings.add(tokenEmbedding);
+      // tokenPosEmbeddings.add(tokenEmbedding);
     });
-    RealMatrix embeddingMatrix = buildEmbeddingMatrix(10, EMBEDDING_DIMENSIONS,100);
     return tokenPosEmbeddings;
   }
 
-  public int wordEncode(String word, Map<String, Integer> vocabulary) {
+  public double[] wordEncode(String word, Map<String, Integer> vocabulary, RealMatrix embeddingMatrix) {
     if(!(vocabulary.get(word) == null)) {
-      return vocabulary.get(word);
+      int tokenNumber = vocabulary.get(word);
+      return embeddingMatrix.getRow(tokenNumber);
     } else {
-      return vocabulary.get("NULL");
+      int tokenNumber =  vocabulary.get("NULL");
+      return embeddingMatrix.getRow(tokenNumber);
     }
   }
 
