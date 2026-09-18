@@ -8,23 +8,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.RealMatrix;
 
 public class PositionalTokenizer {
 
   private final int EMBEDDING_DIMENSIONS = 64;
   private final String DATA_FILE_PATH = "./dataset/speeches.csv";
 
-
   public List<List<Float>> embeddSentence(String sentence) {
     Map<String, Integer> vocabulary = buildVocabulary();
     List<List<Float>> tokenPosEmbeddings = new ArrayList<>(List.of());
     List<String> wordList = List.of(sentence.split(" |(\\n)"));
     wordList.forEach(word -> {
+
       // tokenize
       int token = wordEncode(word, vocabulary);
       List<Float> tokenEmbedding = new ArrayList<>(List.of());
       float tokenFloat = (float) token;
       System.out.print("[");
+
       // generate positional embedding
       for (int i = 0; i < EMBEDDING_DIMENSIONS; i++) {
         tokenEmbedding.add(tokenFloat);
@@ -34,6 +37,7 @@ public class PositionalTokenizer {
       System.out.println();
       tokenPosEmbeddings.add(tokenEmbedding);
     });
+    RealMatrix embeddingMatrix = buildEmbeddingMatrix(vocabulary.keySet().size(), EMBEDDING_DIMENSIONS,100);
     return tokenPosEmbeddings;
   }
 
@@ -74,5 +78,24 @@ public class PositionalTokenizer {
     }
 
     return vocabulary;
+  }
+
+  public RealMatrix buildEmbeddingMatrix(int tokenCount, int dimensions, int maxValue) {
+    // loop for building embedding matrix from scratch
+    System.out.println("Building Embedding Matrix..");
+    RealMatrix embeddingMatrix = new Array2DRowRealMatrix(tokenCount, dimensions);
+    boolean matrixFinished = false;
+    while (matrixFinished == false) {
+      for(int i=0; i<tokenCount; i++) {
+        for (int j = 0; j < dimensions; j++) {
+          int matrixEntry = (int) (Math.random() * maxValue) + 1;
+          embeddingMatrix.setEntry(i, j, matrixEntry);
+        }
+      }
+      matrixFinished = true;
+    }
+    System.out.printf("Embedding Matrix: " + embeddingMatrix.toString());
+    return embeddingMatrix;
+    // fallback: take matrix from ./model path if available
   }
 }
