@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,7 @@ public class PositionalTokenizer {
       System.out.println();
       tokenPosEmbeddings.add(tokenEmbedding);
     });
-    RealMatrix embeddingMatrix = buildEmbeddingMatrix(vocabulary.keySet().size(), EMBEDDING_DIMENSIONS,100);
+    RealMatrix embeddingMatrix = buildEmbeddingMatrix(10, EMBEDDING_DIMENSIONS,100);
     return tokenPosEmbeddings;
   }
 
@@ -83,7 +84,7 @@ public class PositionalTokenizer {
   public RealMatrix buildEmbeddingMatrix(int tokenCount, int dimensions, int maxValue) {
     // loop for building embedding matrix from scratch
     System.out.println("Building Embedding Matrix..");
-    RealMatrix embeddingMatrix = new Array2DRowRealMatrix(tokenCount, dimensions);
+    Array2DRowRealMatrix embeddingMatrix = new Array2DRowRealMatrix(tokenCount, dimensions);
     boolean matrixFinished = false;
     while (matrixFinished == false) {
       for(int i=0; i<tokenCount; i++) {
@@ -94,8 +95,16 @@ public class PositionalTokenizer {
       }
       matrixFinished = true;
     }
-    System.out.printf("Embedding Matrix: " + embeddingMatrix.toString());
+    printMatrix(embeddingMatrix);
     return embeddingMatrix;
     // fallback: take matrix from ./model path if available
+  }
+
+  public void printMatrix(Array2DRowRealMatrix matrix) {
+    System.out.println("Embedding rows: " + matrix.getRowDimension());
+    System.out.println("Embedding columns: " + matrix.getColumnDimension());
+    for (int i = 0; i < matrix.getRowDimension(); i++) {
+      System.out.println(Arrays.toString(matrix.getRow(i)));
+    }
   }
 }
