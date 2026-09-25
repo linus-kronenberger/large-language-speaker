@@ -11,7 +11,7 @@ public class App
     public static void main( String[] args )
     {
         App app = new App();
-        String prompt = "Hi, I am Linus der";
+        String prompt = "Guten Tag Ich bin der Dittrich und ich sehe hier kein Problem, dass ich es bin.";
         String result = app.generateText(prompt);
         System.out.println("User: " + prompt);
         System.out.println("------------------------------");

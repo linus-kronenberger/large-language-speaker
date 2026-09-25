@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
-import org.apache.commons.math3.linear.RealVector;
 
 public class PositionalTokenizer {
 
@@ -23,10 +22,15 @@ public class PositionalTokenizer {
     RealMatrix embeddingMatrix = buildEmbeddingMatrix(vocabulary.keySet().size(), EMBEDDING_DIMENSIONS,100);
     List<List<Float>> tokenPosEmbeddings = new ArrayList<>(List.of());
     List<String> wordList = List.of(sentence.split(" |(\\n)"));
+
+    AtomicInteger positionEncoding = new AtomicInteger();
+
     wordList.forEach(word -> {
 
       // tokenize
       double[] tokenEmbedding = wordEncode(word, vocabulary, embeddingMatrix);
+      System.out.println("word: " + word);
+      System.out.print("embedding: ");
       System.out.print("[");
 
       // generate positional embedding
@@ -36,6 +40,7 @@ public class PositionalTokenizer {
       System.out.println("]");
       System.out.println();
       // tokenPosEmbeddings.add(tokenEmbedding);
+      positionEncoding.getAndIncrement();
     });
     return tokenPosEmbeddings;
   }
@@ -54,8 +59,8 @@ public class PositionalTokenizer {
     System.out.println("Building Vocabulary..");
     Map<String, Integer> vocabulary = new HashMap<>();
     String line = "";
-    int vocabLimit = 10;
-    int count = 0;
+    int vocabLimit = 25605402;
+    AtomicInteger count = new AtomicInteger(0);
     vocabulary.put("NULL", 0);
     AtomicInteger wordIndex = new AtomicInteger(1);
     try (BufferedReader br = new BufferedReader(new FileReader(DATA_FILE_PATH))) {
@@ -69,8 +74,8 @@ public class PositionalTokenizer {
             wordIndex.getAndIncrement();
           }
         });
-        count ++;
-        if(count == vocabLimit) {
+        count.getAndIncrement();
+        if(count.intValue() == vocabLimit) {
           break;
         }
       }
@@ -88,7 +93,8 @@ public class PositionalTokenizer {
     boolean matrixFinished = false;
     while (matrixFinished == false) {
       for(int i=0; i<tokenCount; i++) {
-        for (int j = 0; j < dimensions; j++) {
+        embeddingMatrix.setEntry(i, 0, i);
+        for (int j = 1; j < dimensions; j++) {
           int matrixEntry = (int) (Math.random() * maxValue) + 1;
           embeddingMatrix.setEntry(i, j, matrixEntry);
         }
