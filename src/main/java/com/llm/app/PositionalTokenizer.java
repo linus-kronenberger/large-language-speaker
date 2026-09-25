@@ -14,22 +14,24 @@ import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 
 public class PositionalTokenizer {
+  public PositionalTokenizer() {
+    System.out.println("---------POSITIONAL TOKENIZER LAYER---------");
+  }
 
   private final int EMBEDDING_DIMENSIONS = 64;
   private final String DATA_FILE_PATH = "./dataset/speeches.csv";
 
-  public List<List<Float>> embeddSentence(String sentence) {
+  public List<List<Double>> embeddSentence(String sentence) {
     Map<String, Integer> vocabulary = buildVocabulary();
     RealMatrix embeddingMatrix = buildEmbeddingMatrix(vocabulary.keySet().size(), EMBEDDING_DIMENSIONS,100);
-    List<List<Float>> tokenPosEmbeddings = new ArrayList<>(List.of());
+    List<List<Double>> tokenPosEmbeddings = new ArrayList<>(List.of());
     List<String> wordList = List.of(sentence.split(" |(\\n)"));
 
     AtomicInteger positionEncoding = new AtomicInteger();
-    AtomicInteger position = new AtomicInteger();
     wordList.forEach(word -> {
 
       // tokenize
-      double[] tokenEmbedding = wordEncode(position.get(), word, vocabulary, embeddingMatrix);
+      double[] tokenEmbedding = wordEncode(positionEncoding.get(), word, vocabulary, embeddingMatrix);
       System.out.println("word: " + word);
       System.out.print("embedding: ");
       System.out.print("[");
@@ -40,9 +42,12 @@ public class PositionalTokenizer {
       }
       System.out.println("]");
       System.out.println();
-      // tokenPosEmbeddings.add(tokenEmbedding);
+
+      Double[] doubleObjectVector = Arrays.stream(tokenEmbedding)
+          .mapToObj(Double::valueOf)
+          .toArray(Double[]::new);
+      tokenPosEmbeddings.add(List.of(doubleObjectVector));
       positionEncoding.getAndIncrement();
-      position.getAndIncrement();
     });
     return tokenPosEmbeddings;
   }
