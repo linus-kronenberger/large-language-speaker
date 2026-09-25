@@ -6,9 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="4bf1276e-77a7-4b71-9900-4cd8ad13e1a2" name="Changes" comment="git lfs">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/llm/app/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/llm/app/App.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/llm/app/PositionalTokenizer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/llm/app/PositionalTokenizer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/llm/app/App.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/llm/app/App.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/llm/app/PositionalTokenizer.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/llm/app/PositionalTokenizer.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -34,7 +32,6 @@
   <component name="HighlightingSettingsPerFile">
     <setting file="jar://$MAVEN_REPOSITORY$/org/apache/commons/commons-math3/3.6.1/commons-math3-3.6.1-sources.jar!/org/apache/commons/math3/linear/Array2DRowRealMatrix.java" root0="SKIP_INSPECTION" />
     <setting file="jar://$MAVEN_REPOSITORY$/org/apache/commons/commons-math3/3.6.1/commons-math3-3.6.1-sources.jar!/org/apache/commons/math3/linear/RealMatrix.java" root0="SKIP_INSPECTION" />
-    <setting file="jar://$USER_HOME$/Library/Java/JavaVirtualMachines/graalvm-ce-25.0.2/Contents/Home/lib/src.zip!/java.base/java/util/Map.java" root0="SKIP_INSPECTION" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 3,

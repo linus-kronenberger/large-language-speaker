@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
@@ -24,11 +25,11 @@ public class PositionalTokenizer {
     List<String> wordList = List.of(sentence.split(" |(\\n)"));
 
     AtomicInteger positionEncoding = new AtomicInteger();
-
+    AtomicInteger position = new AtomicInteger();
     wordList.forEach(word -> {
 
       // tokenize
-      double[] tokenEmbedding = wordEncode(word, vocabulary, embeddingMatrix);
+      double[] tokenEmbedding = wordEncode(position.get(), word, vocabulary, embeddingMatrix);
       System.out.println("word: " + word);
       System.out.print("embedding: ");
       System.out.print("[");
@@ -41,25 +42,39 @@ public class PositionalTokenizer {
       System.out.println();
       // tokenPosEmbeddings.add(tokenEmbedding);
       positionEncoding.getAndIncrement();
+      position.getAndIncrement();
     });
     return tokenPosEmbeddings;
   }
 
-  public double[] wordEncode(String word, Map<String, Integer> vocabulary, RealMatrix embeddingMatrix) {
+  public double[] wordEncode(int position, String word, Map<String, Integer> vocabulary, RealMatrix embeddingMatrix) {
+    double[] wordEmbeddingVector;
+    double[] positionalEmbedding = new double[EMBEDDING_DIMENSIONS];
     if(!(vocabulary.get(word) == null)) {
       int tokenNumber = vocabulary.get(word);
-      return embeddingMatrix.getRow(tokenNumber);
+      wordEmbeddingVector = embeddingMatrix.getRow(tokenNumber);
     } else {
       int tokenNumber =  vocabulary.get("NULL");
-      return embeddingMatrix.getRow(tokenNumber);
+      System.out.println("Word: " + word + " not known.");
+      wordEmbeddingVector = embeddingMatrix.getRow(tokenNumber);
     }
+    for (int i = 0; i < positionalEmbedding.length; i++) {
+      if(i%2 == 0) {
+        // even indices use sinusoidal pos embeddings
+        positionalEmbedding[i] = Math.sin(position / Math.pow(10000.0, (2*i) / EMBEDDING_DIMENSIONS));
+      } else {
+        // odd indices use cosinoidal pos embeddings
+        positionalEmbedding[i] = Math.cos(position / Math.pow(10000.0, (2*i) / EMBEDDING_DIMENSIONS));
+      }
+    }
+    return addVectors(wordEmbeddingVector, positionalEmbedding);
   }
 
   public Map<String, Integer > buildVocabulary() {
     System.out.println("Building Vocabulary..");
     Map<String, Integer> vocabulary = new HashMap<>();
     String line = "";
-    int vocabLimit = 25605402;
+    int vocabLimit = 100; // max value is 25605402
     AtomicInteger count = new AtomicInteger(0);
     vocabulary.put("NULL", 0);
     AtomicInteger wordIndex = new AtomicInteger(1);
@@ -93,10 +108,15 @@ public class PositionalTokenizer {
     boolean matrixFinished = false;
     while (matrixFinished == false) {
       for(int i=0; i<tokenCount; i++) {
-        embeddingMatrix.setEntry(i, 0, i);
-        for (int j = 1; j < dimensions; j++) {
-          int matrixEntry = (int) (Math.random() * maxValue) + 1;
-          embeddingMatrix.setEntry(i, j, matrixEntry);
+        // embeddingMatrix.setEntry(i, 0, i);
+        for (int j = 0; j < dimensions; j++) {
+          // create random object
+          Random r = new Random();
+          // generating integer
+          double n = r.nextGaussian();
+          // Printing the random Number
+          System.out.println("The next Gaussian value generated is: " + n);
+          embeddingMatrix.setEntry(i, j, n);
         }
       }
       matrixFinished = true;
@@ -112,5 +132,16 @@ public class PositionalTokenizer {
     for (int i = 0; i < matrix.getRowDimension(); i++) {
       System.out.println(Arrays.toString(matrix.getRow(i)));
     }
+  }
+
+  public double[] addVectors(double[] vec1, double[] vec2) {
+    if(vec1.length != vec2.length) {
+      throw new IllegalArgumentException("vectors of different lengths can not be added");
+    }
+    double[] result = new double[vec1.length];
+    for (int i = 0; i < vec1.length; i++) {
+      result[i] = vec1[i] + vec2[i];
+    }
+    return result;
   }
 }
