@@ -29,6 +29,7 @@ public class MultiSelfAttentionProcessor {
       Utils.printMatrix((Array2DRowRealMatrix) queryMatrix);
       RealMatrix keyMatrix = buildKeyMatrix(dimensions, dimensions, i);
       Utils.printMatrix((Array2DRowRealMatrix) keyMatrix);
+
       // s = r * value
     }
 

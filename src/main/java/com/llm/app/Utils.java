@@ -97,4 +97,16 @@ public class Utils {
       System.out.println(Arrays.toString(matrix.getRow(i)));
     }
   }
+
+  public static RealVector multiplyTransposedVectorWithMatrix(RealVector vector, RealMatrix matrix) {
+    RealVector resultVector = new ArrayRealVector(vector.getDimension());
+    for (int i = 0; i < vector.getDimension(); i++) {
+      double sum = 0.0;
+      for (int j = 0; j < vector.getDimension(); j++) {
+        sum += vector.getEntry(i) * matrix.getEntry(i, j);
+      }
+      resultVector.setEntry(i, sum);
+    }
+    return resultVector;
+  }
 }
