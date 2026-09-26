@@ -9,9 +9,12 @@ import java.util.List;
  */
 public class App 
 {
+    int TOKEN_COUNT = 100;
+    int EMBEDDING_DIMENSIONS = 64;
+
     public static void main( String[] args ) throws IOException {
         App app = new App();
-        String prompt = "Niemand hat die Absicht eine Mauer zu errichten.";
+        String prompt = "Niemand hat die Absicht, eine Mauer zu errichten.";
         String result = app.generateText(prompt);
         System.out.println("User: " + prompt);
         System.out.println("------------------------------");
@@ -19,13 +22,13 @@ public class App
     }
 
     public String generateText(String prompt) throws IOException {
-        PositionalTokenizer tokenizer = new PositionalTokenizer();
+        PositionalTokenizer tokenizer = new PositionalTokenizer(TOKEN_COUNT, EMBEDDING_DIMENSIONS);
         List<List<Double>> posEmbeddings = tokenizer.embeddSentence(prompt);
-        MultiSelfAttentionProcessor selfAttentionProcessor = new MultiSelfAttentionProcessor(posEmbeddings);
-        // List<List<Float>> semEmbeddings = selfAttentionProcessor.embedd(List<List<Float>>));
+        MultiSelfAttentionProcessor selfAttentionProcessor = new MultiSelfAttentionProcessor(TOKEN_COUNT, EMBEDDING_DIMENSIONS);
+        selfAttentionProcessor.forwardMultiHead(5, posEmbeddings);
         // FeedforwardProcessor feedforwarder = new FeedforwardProcessor();
         // List<List<Float>> meanEmbeddings = feedforwarder.forward(semEmbeddings);
-        // WordPredictor predictor = new WordPredictor();
+        // WordPredictor predictor = new SoftmaxWordPredictor();
         // String nextWord = predictor.predict();
         return "";
     }
