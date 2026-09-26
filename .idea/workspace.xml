@@ -4,13 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4bf1276e-77a7-4b71-9900-4cd8ad13e1a2" name="Changes" comment="Update">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/llm/app/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/llm/app/App.java" afterDir="false" />
+    <list default="true" id="4bf1276e-77a7-4b71-9900-4cd8ad13e1a2" name="Changes" comment="chore: Log">
+      <change beforePath="$PROJECT_DIR$/log" beforeDir="false" afterPath="$PROJECT_DIR$/log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/result/embeddings/embedding_matrix.txt" beforeDir="false" afterPath="$PROJECT_DIR$/result/embeddings/embedding_matrix.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/llm/app/PositionalTokenizer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/llm/app/PositionalTokenizer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/llm/app/App.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/llm/app/App.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/llm/app/PositionalTokenizer.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/llm/app/PositionalTokenizer.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -145,7 +142,9 @@
     <MESSAGE value="docs: Added decoder image" />
     <MESSAGE value="docs: First log" />
     <MESSAGE value="Update" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update" />
+    <MESSAGE value="feat: Implement embedding fallback with file path" />
+    <MESSAGE value="chore: Log" />
+    <option name="LAST_COMMIT_MESSAGE" value="chore: Log" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

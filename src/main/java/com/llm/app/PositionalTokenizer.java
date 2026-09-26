@@ -114,7 +114,7 @@ public class PositionalTokenizer {
   }
 
   public RealMatrix loadEmbeddingMatrixFromFilePath(int tokenCount) {
-    RealMatrix loadedEmbeddingMatrix = new Array2DRowRealMatrix(EMBEDDING_DIMENSIONS, EMBEDDING_DIMENSIONS);
+    RealMatrix loadedEmbeddingMatrix = new Array2DRowRealMatrix(tokenCount, EMBEDDING_DIMENSIONS);
     try (BufferedReader reader = new BufferedReader(new FileReader(EMBEDDING_FILE_PATH))) {
       List<String> allLines = reader.readAllLines();
       if(allLines.size() < tokenCount) {
@@ -172,9 +172,11 @@ public class PositionalTokenizer {
         StandardOpenOption.CREATE_NEW.ordinal())) {
       for (int i = 0; i < tokenCount ; i++) {
         for (int j = 0; j < dimensions ; j++) {
-          writer.write(String.valueOf(embeddingMatrix.getEntry(i, j)));
+          writer.write(String.valueOf(embeddingMatrix.getEntry(i, j) + " "));
         }
-        writer.newLine();
+        if(i <= tokenCount - 2) {
+          writer.newLine();
+        }
       }
     }
 
