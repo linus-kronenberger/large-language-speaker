@@ -1,5 +1,6 @@
 package com.llm.app;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -8,8 +9,7 @@ import java.util.List;
  */
 public class App 
 {
-    public static void main( String[] args )
-    {
+    public static void main( String[] args ) throws IOException {
         App app = new App();
         String prompt = "Niemand hat die Absicht eine Mauer zu errichten.";
         String result = app.generateText(prompt);
@@ -18,7 +18,7 @@ public class App
         System.out.println("Assistant: " + result);
     }
 
-    public String generateText(String prompt) {
+    public String generateText(String prompt) throws IOException {
         PositionalTokenizer tokenizer = new PositionalTokenizer();
         List<List<Double>> posEmbeddings = tokenizer.embeddSentence(prompt);
         MultiSelfAttentionProcessor selfAttentionProcessor = new MultiSelfAttentionProcessor(posEmbeddings);

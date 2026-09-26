@@ -4,20 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4bf1276e-77a7-4b71-9900-4cd8ad13e1a2" name="Changes" comment="docs: Added decoder image">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/llm/app/MultiSelfAttentionProcessor.java" afterDir="false" />
+    <list default="true" id="4bf1276e-77a7-4b71-9900-4cd8ad13e1a2" name="Changes" comment="Update">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/llm/app/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/llm/app/App.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/llm/app/PositionalTokenizer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/llm/app/PositionalTokenizer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/llm/app/App.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/llm/app/App.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/llm/app/PositionalTokenizer.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/llm/app/PositionalTokenizer.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/large-language-speaker-1.0-SNAPSHOT.jar" beforeDir="false" afterPath="$PROJECT_DIR$/target/large-language-speaker-1.0-SNAPSHOT.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/maven-archiver/pom.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-archiver/pom.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-com.llm.app.AppTest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/TEST-com.llm.app.AppTest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/com.llm.app.AppTest.txt" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/com.llm.app.AppTest.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -149,7 +143,9 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="feat: Implement positional embedding and standard distribution" />
     <MESSAGE value="docs: Added decoder image" />
-    <option name="LAST_COMMIT_MESSAGE" value="docs: Added decoder image" />
+    <MESSAGE value="docs: First log" />
+    <MESSAGE value="Update" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
