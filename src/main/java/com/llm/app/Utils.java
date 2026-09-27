@@ -109,4 +109,25 @@ public class Utils {
     }
     return resultVector;
   }
+  
+  public static RealMatrix multipleMatrices(RealMatrix matrix1, RealMatrix matrix2) throws IOException {
+    // already implemented in math3 lib
+
+    if(matrix1.getColumnDimension() != matrix2.getRowDimension()) {
+      throw new IOException("Two matrices can not be multiplied as matrix 1 column dimension doesn't match matrix 2 row dimension.");
+    }
+
+    RealMatrix resultMatrix = new Array2DRowRealMatrix(matrix1.getRowDimension(), matrix2.getColumnDimension());
+    double sum = 0;
+    for (int row1 = 0; row1 < matrix1.getRowDimension(); row1++) {
+      for (int column1 = 0; column1 < matrix1.getColumnDimension(); column1++) {
+        for (int row2 = 0; row2 < matrix2.getRowDimension(); row2++) {
+          sum += matrix1.getEntry(row1, column1) * matrix2.getEntry(row2, column1);
+        }
+        resultMatrix.setEntry(row1, column1, sum);
+        sum = 0;
+      }
+    }
+    return resultMatrix;
+  }
 }
