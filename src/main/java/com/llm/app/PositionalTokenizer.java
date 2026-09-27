@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 
 public class PositionalTokenizer {
@@ -24,13 +25,14 @@ public class PositionalTokenizer {
   private final String DATA_FILE_PATH = "./dataset/speeches.csv";
   private final String EMBEDDING_FILE_PATH = "./result/embedding_lookup/embedding_matrix.txt";
 
-  public List<List<Double>> embeddSentence(String sentence) throws IOException {
+  public RealMatrix embeddSentence(String sentence) throws IOException {
     Map<String, Integer> vocabulary = buildVocabulary();
     RealMatrix embeddingMatrix = Utils.buildMatrixIfNotExists(vocabulary.keySet().size(), dimensions, EMBEDDING_FILE_PATH);
-    List<List<Double>> tokenPosEmbeddings = new ArrayList<>(List.of());
+    RealMatrix tokenPosEmbeddings = new Array2DRowRealMatrix(vocabulary.keySet().size(), dimensions);
     List<String> wordList = List.of(sentence.split(" |(\\n)"));
 
     AtomicInteger positionEncoding = new AtomicInteger();
+    AtomicInteger counter = new AtomicInteger(0);
     wordList.forEach(word -> {
 
       // tokenize
@@ -42,15 +44,14 @@ public class PositionalTokenizer {
       // generate positional embedding
       for (int i = 0; i < dimensions; i++) {
         System.out.print(tokenEmbedding[i] + " ");
+        tokenPosEmbeddings.setEntry(counter.get(), i, tokenEmbedding[i]);
       }
       System.out.println("]");
       System.out.println();
 
-      Double[] doubleObjectVector = Arrays.stream(tokenEmbedding)
-          .mapToObj(Double::valueOf)
-          .toArray(Double[]::new);
-      tokenPosEmbeddings.add(List.of(doubleObjectVector));
+
       positionEncoding.getAndIncrement();
+      counter.getAndIncrement();
     });
     return tokenPosEmbeddings;
   }
