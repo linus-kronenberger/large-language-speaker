@@ -29,7 +29,7 @@ public class Utils {
     Array2DRowRealMatrix embeddingMatrix = new Array2DRowRealMatrix(rows, columns);
     boolean matrixFinished = false;
     while (matrixFinished == false) {
-      for(int i=0; i<rows; i++) {
+      for(int i=0; i < rows; i++) {
         // embeddingMatrix.setEntry(i, 0, i);
         for (int j = 0; j < columns; j++) {
           double n = r.nextGaussian() * sigma;
