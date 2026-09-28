@@ -58,16 +58,19 @@ public class MultiHeadAttentionProcessor {
 
   public RealMatrix buildQueryMatrix(int rows, int columns, int multiHeadLayer) {
     String queryFilePath = "./result/attention_weights/query_" + String.valueOf(multiHeadLayer);
+    seed += 1;
     return Utils.buildMatrixIfNotExists(seed, sigma, rows, columns, queryFilePath);
   }
 
   public RealMatrix buildKeyMatrix(int rows, int columns, int multiHeadLayer) {
     String queryFilePath = "./result/attention_weights/key_" + String.valueOf(multiHeadLayer);
+    seed += 1;
     return Utils.buildMatrixIfNotExists(seed, sigma, rows, columns, queryFilePath);
   }
 
   public RealMatrix buildValueMatrix(int rows, int columns, int multiHeadLayer) {
     String queryFilePath = "./result/attention_weights/value_" + String.valueOf(multiHeadLayer);
+    seed += 1;
     return Utils.buildMatrixIfNotExists(seed, sigma, rows, columns, queryFilePath);
   }
 }

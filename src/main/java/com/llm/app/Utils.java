@@ -24,15 +24,14 @@ public class Utils {
     }
 
     // loop for building embedding matrix from scratch
-    System.out.println("Building Embedding Matrix..");
+    System.out.println("Building Embedding Matrix with SEED: " + seed);
+    Random r = new Random(seed);
     Array2DRowRealMatrix embeddingMatrix = new Array2DRowRealMatrix(rows, columns);
     boolean matrixFinished = false;
     while (matrixFinished == false) {
       for(int i=0; i<rows; i++) {
         // embeddingMatrix.setEntry(i, 0, i);
         for (int j = 0; j < columns; j++) {
-          // Random r = new Random(seed);
-          Random r = new Random();
           double n = r.nextGaussian() * sigma;
           // Printing the random Number
           System.out.println("The next Gaussian value generated is: " + n);
