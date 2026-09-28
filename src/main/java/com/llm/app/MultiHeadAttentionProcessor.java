@@ -1,12 +1,10 @@
 package com.llm.app;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import jdk.jshell.execution.Util;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
-import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealMatrix;
-import org.apache.commons.math3.linear.RealVector;
 
 public class MultiHeadAttentionProcessor {
 
@@ -18,35 +16,33 @@ public class MultiHeadAttentionProcessor {
     this.dimensions = dimensions;
   }
 
-  public List<List<Double>> forwardMultiHead(int multiHeadLayers, RealMatrix posEmbeddings) {
+  public List<List<Double>> forwardMultiHead(int multiHeadLayers, RealMatrix posEmbeddings) throws IOException {
     System.out.println("---------SELF ATTENTION LAYER---------");
 
+    // todo: Parallelize self attention
+
     for (int i = 0; i < multiHeadLayers; i++) {
-      // r = query^t * key
       System.out.println("Building Multi Head Attention Layer: " + i);
-      RealMatrix queryMatrix = buildQueryMatrix(dimensions, dimensions, i);
-      Utils.printMatrix((Array2DRowRealMatrix) queryMatrix);
-      RealMatrix keyMatrix = buildKeyMatrix(dimensions, dimensions, i);
-      Utils.printMatrix((Array2DRowRealMatrix) keyMatrix);
-      RealMatrix valueMatrix = buildValueMatrix(dimensions, dimensions, i);
-      Utils.printMatrix((Array2DRowRealMatrix) valueMatrix);
+      RealMatrix queryWeights = buildQueryMatrix(dimensions, dimensions, i);
+      Utils.printMatrix((Array2DRowRealMatrix) queryWeights);
+      RealMatrix keyWeights = buildKeyMatrix(dimensions, dimensions, i);
+      Utils.printMatrix((Array2DRowRealMatrix) keyWeights);
+      RealMatrix valueWeights = buildValueMatrix(dimensions, dimensions, i);
+      Utils.printMatrix((Array2DRowRealMatrix) valueWeights);
 
-      // causal attention
 
-      for (int j = 0; j < posEmbeddings.getRowDimension(); j++) {
 
-          RealVector queryVector = new ArrayRealVector(dimensions);
-          RealVector keyVector =  new ArrayRealVector(dimensions);
-          RealVector valueVector =  new ArrayRealVector(dimensions);
+      RealMatrix queryMatrix = Utils.multipleMatrices(posEmbeddings, queryWeights);
+      RealMatrix keyMatrix = Utils.multipleMatrices(posEmbeddings, keyWeights);
+      RealMatrix valueMatrix = Utils.multipleMatrices(posEmbeddings, valueWeights);
 
-          Utils.multiplyTransposedVectorWithMatrix(queryVector, queryMatrix);
-          Utils.multiplyTransposedVectorWithMatrix(keyVector, keyMatrix);
-          Utils.multiplyTransposedVectorWithMatrix(valueVector, valueMatrix);
+      // bidirectional attention
+      RealMatrix queryKeyDotProduct = queryMatrix.multiply(keyMatrix.transpose()).scalarMultiply(1 / Math.sqrt(
+          (double) dimensions / multiHeadLayers));
+      RealMatrix valueDotProduct = queryKeyDotProduct.multiply(valueMatrix);
+      RealMatrix softmaxAttentionResult = Utils.calculateSoftmax(valueDotProduct);
+      // transform to causal attention
 
-        // queryVector.setEntry(i, posEmbeddings.get(i));
-      }
-
-      // s = r * value
     }
 
     List<List<Double>> attendedEmbeddings = new ArrayList<>();

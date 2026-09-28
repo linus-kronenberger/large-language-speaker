@@ -130,4 +130,21 @@ public class Utils {
     }
     return resultMatrix;
   }
+
+  public static RealMatrix calculateSoftmax(RealMatrix matrix) {
+    RealMatrix resultMatrix = new Array2DRowRealMatrix(matrix.getRowDimension(), matrix.getColumnDimension());
+    double sum = 0.0;
+    for (int i = 0; i < matrix.getRowDimension(); i++) {
+      for (int j = 0; j < matrix.getColumnDimension(); j++) {
+        sum += Math.exp(matrix.getEntry(i, j));
+      }
+    }
+    for (int row = 0; row < matrix.getRowDimension(); row++) {
+      for ( int column = 0; column < matrix.getColumnDimension(); column++) {
+        double newEntry = Math.exp(matrix.getEntry(row, column)) / sum;
+        resultMatrix.setEntry(row, column, newEntry);
+      }
+    }
+    return resultMatrix;
+  }
 }
