@@ -13,6 +13,7 @@ public class FeedForwardProcessor {
 
   public RealMatrix forward(RealMatrix attentionEmbeddings) {
     System.out.println("---------FEED FORWARD LAYER---------");
+    System.out.println("start seed: " + seed);
     RealMatrix feededMatrix = new Array2DRowRealMatrix(attentionEmbeddings.getRowDimension(), attentionEmbeddings.getColumnDimension());
     System.out.println("Result Embeddings after feed forward calculation: ");
     Utils.printMatrix((Array2DRowRealMatrix) feededMatrix);

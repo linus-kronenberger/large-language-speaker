@@ -53,19 +53,19 @@ public class AttentionTask implements Callable<RealMatrix> {
 
   public RealMatrix buildQueryMatrix(int rows, int columns, int multiHeadLayer) {
     String queryFilePath = "./result/attention_weights/query_" + String.valueOf(multiHeadLayer) + ".txt";
-    seed += 1;
+    this.seed += 1;
     return Utils.buildMatrixIfNotExists(seed, sigma, rows, columns, queryFilePath);
   }
 
   public RealMatrix buildKeyMatrix(int rows, int columns, int multiHeadLayer) {
     String keyFilePath = "./result/attention_weights/key_" + String.valueOf(multiHeadLayer) + ".txt";
-    seed += 1;
+    this.seed += 1;
     return Utils.buildMatrixIfNotExists(seed, sigma, rows, columns, keyFilePath);
   }
 
   public RealMatrix buildValueMatrix(int rows, int columns, int multiHeadLayer) {
     String valueFilePath = "./result/attention_weights/value_" + String.valueOf(multiHeadLayer) + ".txt";
-    seed += 1;
+    this.seed += 1;
     return Utils.buildMatrixIfNotExists(seed, sigma, rows, columns, valueFilePath);
   }
 }

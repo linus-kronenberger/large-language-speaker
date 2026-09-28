@@ -6,7 +6,7 @@ import org.apache.commons.math3.linear.RealMatrix;
 public class App 
 {
     final int TOKEN_COUNT = 100;
-    final int EMBEDDING_DIMENSIONS = 12000;
+    final int EMBEDDING_DIMENSIONS = 120;
     final int ATTENTION_HEADS = 12;
     final int START_SEED = 1;
     final double SIGMA = 0.02;

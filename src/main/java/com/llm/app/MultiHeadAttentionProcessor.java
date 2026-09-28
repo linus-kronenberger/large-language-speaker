@@ -39,8 +39,7 @@ public class MultiHeadAttentionProcessor {
     long multiStartTime = System.nanoTime();
     System.out.println("Measuring multi head attention time. Starting at: " + multiStartTime);
     for (int i = 0; i < multiHeadLayers; i++) {
-      seed ++;
-      AttentionTask task = new AttentionTask(seed, sigma, i, dimensions, multiHeadLayers, posEmbeddings);
+      AttentionTask task = new AttentionTask(seed + i * 3, sigma, i, dimensions, multiHeadLayers, posEmbeddings);
       Future<RealMatrix> futureDotValueResult = executorService.submit(task);
       results.add(futureDotValueResult);
     }
