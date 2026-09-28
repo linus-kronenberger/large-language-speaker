@@ -167,6 +167,33 @@ public class Utils {
     return resultMatrix;
   }
 
+  public static RealMatrix calculateSoftmax(RealMatrix matrix, double temperature) {
+    System.out.println("Calculating softmax...");
+    RealMatrix resultMatrix = new Array2DRowRealMatrix(matrix.getRowDimension(), matrix.getColumnDimension());
+
+    for (int i = 0; i < matrix.getRowDimension(); i++) {
+      double maxRowValue = matrix.getEntry(i, 0);
+      for (int j = 1; j < matrix.getColumnDimension(); j++) {
+        if (maxRowValue < matrix.getEntry(i, j)) {
+          maxRowValue = matrix.getEntry(i, j);
+        }
+      }
+
+      double sum = 0.0;
+      for (int j = 0; j < matrix.getColumnDimension(); j++) {
+        sum += Math.exp((matrix.getEntry(i, j) - maxRowValue) / temperature);
+      }
+
+      for (int j = 0; j < matrix.getColumnDimension(); j++) {
+        double newEntry = Math.exp((matrix.getEntry(i, j) - maxRowValue) / temperature) / sum;
+        resultMatrix.setEntry(i, j, newEntry);
+      }
+    }
+
+    printMatrix((Array2DRowRealMatrix) resultMatrix);
+    return resultMatrix;
+  }
+
   public static RealMatrix maskMatrix(RealMatrix matrix) {
     System.out.println("Masking matrix.");
     for (int row = 0; row < matrix.getRowDimension(); row++) {
@@ -206,5 +233,15 @@ public class Utils {
     System.out.println("Calculated concatenated matrix:");
     printMatrix((Array2DRowRealMatrix) matrix1);
     return matrix1;
+  }
+
+  public static void performReLuActivation(RealMatrix feededMatrix) {
+    for (int row = 0; row < feededMatrix.getRowDimension(); row++) {
+      for (int column = 0; column < feededMatrix.getColumnDimension(); column++) {
+        if(feededMatrix.getEntry(row, column) < 0.0) {
+          feededMatrix.setEntry(row, column, 0.0);
+        }
+      }
+    }
   }
 }

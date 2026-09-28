@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -15,6 +16,9 @@ public class PositionalTokenizer {
   private int dimensions;
   private int seed;
   private double sigma;
+  private final String DATA_FILE_PATH = "./dataset/speeches.csv";
+  private final String EMBEDDING_FILE_PATH = "./result/embedding_lookup/embedding_matrix.txt";
+  private Map<String, Integer> vocabulary;
 
   public PositionalTokenizer(int seed, double sigma, int tokenCount, int dimensions) {
     this.seed = seed;
@@ -24,11 +28,8 @@ public class PositionalTokenizer {
     System.out.println("---------POSITIONAL TOKENIZER LAYER---------");
   }
 
-  private final String DATA_FILE_PATH = "./dataset/speeches.csv";
-  private final String EMBEDDING_FILE_PATH = "./result/embedding_lookup/embedding_matrix.txt";
-
   public RealMatrix embeddSentence(String sentence) throws IOException {
-    Map<String, Integer> vocabulary = buildVocabulary();
+    vocabulary = buildVocabulary();
     RealMatrix embeddingMatrix = Utils.buildMatrixIfNotExists(seed, sigma, vocabulary.keySet().size(), dimensions, EMBEDDING_FILE_PATH);
     List<String> wordList = List.of(sentence.split(" |(\\n)"));
     RealMatrix tokenPosEmbeddings = new Array2DRowRealMatrix(wordList.size(), dimensions);
@@ -84,7 +85,7 @@ public class PositionalTokenizer {
 
   public Map<String, Integer > buildVocabulary() {
     System.out.println("Building Vocabulary..");
-    Map<String, Integer> vocabulary = new HashMap<>();
+    Map<String, Integer> vocabulary = new LinkedHashMap<>();
     String line = "";
     int vocabLimit = this.tokenCount; // max value is 25605402
     AtomicInteger count = new AtomicInteger(0);
@@ -122,5 +123,9 @@ public class PositionalTokenizer {
       result[i] = vec1[i] + vec2[i];
     }
     return result;
+  }
+
+  public Map<String, Integer> getVocabulary() {
+    return vocabulary;
   }
 }
