@@ -2,6 +2,7 @@ package com.llm.app;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -40,7 +41,11 @@ public class Utils {
     }
 
     // store matrix in file under EMBEDDING_FILE_PATH
-
+    File file = new File(filePath);
+    File parent = file.getParentFile();
+    if(parent != null) {
+      parent.mkdirs();
+    }
     try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
       for (int i = 0; i < rows ; i++) {
         for (int j = 0; j < columns ; j++) {
