@@ -27,10 +27,9 @@ public class MultiHeadAttentionProcessor {
   }
 
   public RealMatrix forwardMultiHead(int multiHeadLayers, RealMatrix posEmbeddings) {
-    ExecutorService executorService = Executors.newFixedThreadPool(1);
-    if(parallelized == true) {
-      executorService = Executors.newFixedThreadPool(multiHeadLayers);
-    }
+    RealMatrix normalized = Utils.performNormalization(posEmbeddings, 1e-5);
+
+    ExecutorService executorService = Executors.newFixedThreadPool(parallelized ? multiHeadLayers : 1);
 
     System.out.println("---------SELF ATTENTION LAYER---------");
 
@@ -38,28 +37,28 @@ public class MultiHeadAttentionProcessor {
     List<Future<RealMatrix>> results = new ArrayList<>();
     long multiStartTime = System.nanoTime();
     System.out.println("Measuring multi head attention time. Starting at: " + multiStartTime);
-    for (int i = 0; i < multiHeadLayers; i++) {
-      AttentionTask task = new AttentionTask(seed + i * 3, sigma, i, dimensions, multiHeadLayers, posEmbeddings);
-      Future<RealMatrix> futureDotValueResult = executorService.submit(task);
-      results.add(futureDotValueResult);
-    }
 
-    results.forEach(result -> {
-      try {
-        Utils.concatenateMatricesHorizontally(attentionResultMatrix, result.get());
-      } catch (InterruptedException e) {
-        throw new RuntimeException(e);
-      } catch (ExecutionException e) {
-        throw new RuntimeException(e);
+    try {
+      for (int i = 0; i < multiHeadLayers; i++) {
+        AttentionTask task = new AttentionTask(seed + i * 3, sigma, i, dimensions, multiHeadLayers, normalized);
+        results.add(executorService.submit(task));
       }
-    });
 
-    executorService.shutdown();
+      for (Future<RealMatrix> result : results) {
+        try {
+          Utils.concatenateMatricesHorizontally(attentionResultMatrix, result.get());
+        } catch (InterruptedException | ExecutionException e) {
+          throw new RuntimeException(e);
+        }
+      }
+    } finally {
+      executorService.shutdown();
+    }
 
     long multiFinishTime = System.nanoTime();
     long multiElapsedTime = multiFinishTime - multiStartTime;
     System.out.println("Measured multi head attention time: " + multiElapsedTime);
 
-    return attentionResultMatrix;
+    return posEmbeddings.add(attentionResultMatrix);
   }
 }

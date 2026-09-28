@@ -244,4 +244,22 @@ public class Utils {
       }
     }
   }
+
+  public static RealMatrix performNormalization(RealMatrix matrix, double epsilon) {
+    int rows = matrix.getRowDimension();
+    int cols = matrix.getColumnDimension();
+    RealMatrix normalizedMatrix = new Array2DRowRealMatrix(rows, cols);
+    for (int row = 0; row < rows; row++) {
+      double sumSquares = 0;
+      for (int column = 0; column < cols; column++) {
+        double v = matrix.getEntry(row, column);
+        sumSquares += v * v;
+      }
+      double rms = Math.sqrt(sumSquares / cols + epsilon);
+      for (int column = 0; column < cols; column++) {
+        normalizedMatrix.setEntry(row, column, matrix.getEntry(row, column) / rms);
+      }
+    }
+    return normalizedMatrix;
+  }
 }

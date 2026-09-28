@@ -13,20 +13,25 @@ public class FeedForwardProcessor {
   }
 
   public RealMatrix forward(RealMatrix attentionEmbeddings, int feedForwardActivationDimension) throws IOException {
+    RealMatrix normalized = Utils.performNormalization(attentionEmbeddings, 1e-5);
+
     System.out.println("---------FEED FORWARD LAYER---------");
     System.out.println("start seed: " + seed);
     RealMatrix feededMatrix;
     String hiddenWeightsFilePath = "./result/feed_forward_weights/hidden_weights.txt";
-    RealMatrix activationFeedForwardMatrix = Utils.buildMatrixIfNotExists(seed, 0.02, attentionEmbeddings.getColumnDimension(), feedForwardActivationDimension, hiddenWeightsFilePath);
-    RealMatrix hiddenLayerResult = Utils.multipleMatrices(attentionEmbeddings, activationFeedForwardMatrix); // optional: Implement bias vector layer
+
+    RealMatrix hiddenWeights = Utils.buildMatrixIfNotExists(seed, 0.02,
+        normalized.getColumnDimension(), feedForwardActivationDimension, hiddenWeightsFilePath);
+    RealMatrix hiddenLayerResult = Utils.multipleMatrices(normalized, hiddenWeights);
     Utils.performReLuActivation(hiddenLayerResult);
+
     System.out.println("Result Embeddings after hidden layer calculation: ");
     Utils.printMatrix((Array2DRowRealMatrix) hiddenLayerResult, true);
     String finalFeedForwardFilePath = "./result/feed_forward_weights/final_weights.txt";
-    RealMatrix feedForwardFinalWeights = Utils.buildMatrixIfNotExists(seed + 1, 0.02, hiddenLayerResult.getColumnDimension(), attentionEmbeddings.getColumnDimension(), finalFeedForwardFilePath);
-    feededMatrix = Utils.multipleMatrices(hiddenLayerResult, feedForwardFinalWeights);
-    System.out.println("Result Embeddings after feed forward calculation: ");
-    Utils.printMatrix((Array2DRowRealMatrix) feededMatrix, true);
-    return feededMatrix;
+
+    RealMatrix finalWeights = Utils.buildMatrixIfNotExists(seed + 1, 0.02, hiddenLayerResult.getColumnDimension(), normalized.getColumnDimension(), finalFeedForwardFilePath);
+    feededMatrix = Utils.multipleMatrices(hiddenLayerResult, finalWeights);
+
+    return attentionEmbeddings.add(feededMatrix);
   }
 }
