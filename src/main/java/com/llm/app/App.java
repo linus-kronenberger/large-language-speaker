@@ -8,9 +8,9 @@ public class App
     final int TOKEN_COUNT = 100;
     final int EMBEDDING_DIMENSIONS = 64;
     final int ATTENTION_HEADS = 8;
-    final int seed = 1;
-    final double sigma = 0.02;
-    final boolean parallelized = true;
+    final int START_SEED = 1;
+    final double SIGMA = 0.02;
+    final boolean PARALLELIZED = true;
 
     public static void main( String[] args ) throws IOException {
         App app = new App();
@@ -22,12 +22,12 @@ public class App
     }
 
     public String generateText(String prompt) throws IOException {
-        PositionalTokenizer tokenizer = new PositionalTokenizer(seed, sigma, TOKEN_COUNT, EMBEDDING_DIMENSIONS);
+        PositionalTokenizer tokenizer = new PositionalTokenizer(START_SEED, SIGMA, TOKEN_COUNT, EMBEDDING_DIMENSIONS);
         RealMatrix posEmbeddings = tokenizer.embeddSentence(prompt);
         MultiHeadAttentionProcessor
-            selfAttentionProcessor = new MultiHeadAttentionProcessor(seed, sigma, EMBEDDING_DIMENSIONS, parallelized);
-        RealMatrix attentionEmbeddings = selfAttentionProcessor.forwardMultiHead(ATTENTION_HEADS, posEmbeddings);
-        // FeedforwardProcessor feedforwarder = new FeedforwardProcessor();
+            multiHeadAttentionProcessor = new MultiHeadAttentionProcessor(START_SEED, SIGMA, EMBEDDING_DIMENSIONS, PARALLELIZED);
+        RealMatrix attentionEmbeddings = multiHeadAttentionProcessor.forwardMultiHead(ATTENTION_HEADS, posEmbeddings);
+        FeedForwardProcessor feedforwarder = new FeedForwardProcessor();
         // List<List<Float>> meanEmbeddings = feedforwarder.forward(semEmbeddings);
         // WordPredictor predictor = new SoftmaxWordPredictor();
         // String nextWord = predictor.predict();
