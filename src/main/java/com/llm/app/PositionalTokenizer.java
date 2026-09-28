@@ -13,8 +13,12 @@ import org.apache.commons.math3.linear.RealMatrix;
 public class PositionalTokenizer {
   private int tokenCount;
   private int dimensions;
+  private int seed;
+  private double sigma;
 
-  public PositionalTokenizer(int tokenCount, int dimensions) {
+  public PositionalTokenizer(int seed, double sigma, int tokenCount, int dimensions) {
+    this.seed = seed;
+    this.sigma = sigma;
     this.tokenCount = tokenCount;
     this.dimensions = dimensions;
     System.out.println("---------POSITIONAL TOKENIZER LAYER---------");
@@ -25,9 +29,10 @@ public class PositionalTokenizer {
 
   public RealMatrix embeddSentence(String sentence) throws IOException {
     Map<String, Integer> vocabulary = buildVocabulary();
-    RealMatrix embeddingMatrix = Utils.buildMatrixIfNotExists(vocabulary.keySet().size(), dimensions, EMBEDDING_FILE_PATH);
-    RealMatrix tokenPosEmbeddings = new Array2DRowRealMatrix(vocabulary.keySet().size(), dimensions);
+    RealMatrix embeddingMatrix = Utils.buildMatrixIfNotExists(seed, sigma, vocabulary.keySet().size(), dimensions, EMBEDDING_FILE_PATH);
     List<String> wordList = List.of(sentence.split(" |(\\n)"));
+    RealMatrix tokenPosEmbeddings = new Array2DRowRealMatrix(wordList.size(), dimensions);
+
 
     AtomicInteger positionEncoding = new AtomicInteger();
     AtomicInteger counter = new AtomicInteger(0);

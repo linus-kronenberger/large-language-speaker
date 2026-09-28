@@ -16,7 +16,7 @@ import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 
 public class Utils {
-  public static RealMatrix buildMatrixIfNotExists(int rows, int columns, String filePath) {
+  public static RealMatrix buildMatrixIfNotExists(int seed, double sigma, int rows, int columns, String filePath) {
     // fallback: take matrix from ./model path if available
     RealMatrix fileMatrix = loadEmbeddingMatrixFromFilePath(rows, columns, filePath);
     if(fileMatrix != null) {
@@ -31,8 +31,9 @@ public class Utils {
       for(int i=0; i<rows; i++) {
         // embeddingMatrix.setEntry(i, 0, i);
         for (int j = 0; j < columns; j++) {
+          // Random r = new Random(seed);
           Random r = new Random();
-          double n = r.nextGaussian();
+          double n = r.nextGaussian() * sigma;
           // Printing the random Number
           System.out.println("The next Gaussian value generated is: " + n);
           embeddingMatrix.setEntry(i, j, n);
@@ -91,8 +92,8 @@ public class Utils {
   }
 
   public static void printMatrix(Array2DRowRealMatrix matrix) {
-    System.out.println("Embedding rows: " + matrix.getRowDimension());
-    System.out.println("Embedding columns: " + matrix.getColumnDimension());
+    System.out.println("matrix rows: " + matrix.getRowDimension());
+    System.out.println("matrix columns: " + matrix.getColumnDimension());
     for (int i = 0; i < matrix.getRowDimension(); i++) {
       System.out.println(Arrays.toString(matrix.getRow(i)));
     }
@@ -118,33 +119,84 @@ public class Utils {
     }
 
     RealMatrix resultMatrix = new Array2DRowRealMatrix(matrix1.getRowDimension(), matrix2.getColumnDimension());
-    double sum = 0;
+
     for (int row1 = 0; row1 < matrix1.getRowDimension(); row1++) {
-      for (int column1 = 0; column1 < matrix1.getColumnDimension(); column1++) {
-        for (int row2 = 0; row2 < matrix2.getRowDimension(); row2++) {
-          sum += matrix1.getEntry(row1, column1) * matrix2.getEntry(row2, column1);
+      for (int column2 = 0; column2 < matrix2.getColumnDimension(); column2++) {
+        double sum = 0;
+        for (int column1 = 0; column1 < matrix1.getColumnDimension(); column1++) {
+          sum += matrix1.getEntry(row1, column1) * matrix2.getEntry(column1, column2);
         }
-        resultMatrix.setEntry(row1, column1, sum);
-        sum = 0;
+        resultMatrix.setEntry(row1, column2, sum);
       }
     }
     return resultMatrix;
   }
 
   public static RealMatrix calculateSoftmax(RealMatrix matrix) {
+    System.out.println("Calculating softmax...");
     RealMatrix resultMatrix = new Array2DRowRealMatrix(matrix.getRowDimension(), matrix.getColumnDimension());
-    double sum = 0.0;
+
     for (int i = 0; i < matrix.getRowDimension(); i++) {
+      double maxRowValue = matrix.getEntry(i, 0);
+      for (int j = 1; j < matrix.getColumnDimension(); j++) {
+        if (maxRowValue < matrix.getEntry(i, j)) {
+          maxRowValue = matrix.getEntry(i, j);
+        }
+      }
+
+      double sum = 0.0;
       for (int j = 0; j < matrix.getColumnDimension(); j++) {
-        sum += Math.exp(matrix.getEntry(i, j));
+        sum += Math.exp(matrix.getEntry(i, j) - maxRowValue);
+      }
+
+      for (int j = 0; j < matrix.getColumnDimension(); j++) {
+        double newEntry = Math.exp(matrix.getEntry(i, j) - maxRowValue) / sum;
+        resultMatrix.setEntry(i, j, newEntry);
       }
     }
-    for (int row = 0; row < matrix.getRowDimension(); row++) {
-      for ( int column = 0; column < matrix.getColumnDimension(); column++) {
-        double newEntry = Math.exp(matrix.getEntry(row, column)) / sum;
-        resultMatrix.setEntry(row, column, newEntry);
-      }
-    }
+
+    printMatrix((Array2DRowRealMatrix) resultMatrix);
     return resultMatrix;
+  }
+
+  public static RealMatrix maskMatrix(RealMatrix matrix) {
+    System.out.println("Masking matrix.");
+    for (int row = 0; row < matrix.getRowDimension(); row++) {
+      for (int column = 0; column < matrix.getColumnDimension(); column++) {
+        if(row < column) {
+          matrix.setEntry(row, column, Double.NEGATIVE_INFINITY);
+        }
+      }
+    }
+    printMatrix((Array2DRowRealMatrix) matrix);
+    return matrix;
+  }
+
+  public static RealMatrix concatenateMatricesHorizontally(RealMatrix matrix1, RealMatrix matrix2) {
+    System.out.println("Concatenating matrices.");
+    printMatrix((Array2DRowRealMatrix) matrix1);
+    // first search for index
+    int emptyIndex = -1;
+    for (int i = 0; i < matrix1.getColumnDimension(); i++) {
+      if(matrix1.getEntry(0, i) == 0.0) {
+        emptyIndex = i;
+        break;
+      }
+    }
+    if(emptyIndex == -1) {
+      System.out.println("Matrix 1 is already full. Concatenation with matrix 2 not possible.");
+      return matrix1;
+    }
+
+    for (int row = 0; row < matrix1.getRowDimension(); row++) {
+      int secondColumn = 0;
+      for (int column = emptyIndex; column < emptyIndex + matrix2.getColumnDimension(); column++) {
+        matrix1.setEntry(row, column, matrix2.getEntry(row, secondColumn));
+        secondColumn ++;
+      }
+    }
+    System.out.println("Calculated concatenated matrix:");
+    printMatrix((Array2DRowRealMatrix) matrix1);
+    return matrix1;
   }
 }

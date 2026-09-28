@@ -6,7 +6,32 @@
   <component name="ChangeListManager">
     <list default="true" id="4bf1276e-77a7-4b71-9900-4cd8ad13e1a2" name="Changes" comment="chore: Implemented matrix multiplication">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/log" beforeDir="false" afterPath="$PROJECT_DIR$/log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result/attention_weights/key_0" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result/attention_weights/key_1" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result/attention_weights/key_2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result/attention_weights/key_3" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result/attention_weights/key_4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result/attention_weights/key_5" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result/attention_weights/key_6" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result/attention_weights/key_7" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result/attention_weights/query_0" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result/attention_weights/query_1" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result/attention_weights/query_2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result/attention_weights/query_3" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result/attention_weights/query_4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result/attention_weights/query_5" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result/attention_weights/query_6" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result/attention_weights/query_7" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result/attention_weights/value_0" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result/attention_weights/value_1" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result/attention_weights/value_2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result/attention_weights/value_3" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result/attention_weights/value_4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result/attention_weights/value_5" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result/attention_weights/value_6" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result/attention_weights/value_7" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result/embedding_lookup/embedding_matrix.txt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/llm/app/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/llm/app/App.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/llm/app/MultiHeadAttentionProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/llm/app/MultiHeadAttentionProcessor.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/llm/app/PositionalTokenizer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/llm/app/PositionalTokenizer.java" afterDir="false" />
