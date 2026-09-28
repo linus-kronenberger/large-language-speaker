@@ -6,8 +6,8 @@ import org.apache.commons.math3.linear.RealMatrix;
 public class App 
 {
     final int TOKEN_COUNT = 100;
-    final int EMBEDDING_DIMENSIONS = 64;
-    final int ATTENTION_HEADS = 8;
+    final int EMBEDDING_DIMENSIONS = 12000;
+    final int ATTENTION_HEADS = 12;
     final int START_SEED = 1;
     final double SIGMA = 0.02;
     final boolean PARALLELIZED = true;
@@ -27,8 +27,8 @@ public class App
         MultiHeadAttentionProcessor
             multiHeadAttentionProcessor = new MultiHeadAttentionProcessor(START_SEED, SIGMA, EMBEDDING_DIMENSIONS, PARALLELIZED);
         RealMatrix attentionEmbeddings = multiHeadAttentionProcessor.forwardMultiHead(ATTENTION_HEADS, posEmbeddings);
-        FeedForwardProcessor feedforwarder = new FeedForwardProcessor();
-        // List<List<Float>> meanEmbeddings = feedforwarder.forward(semEmbeddings);
+        FeedForwardProcessor feedforwarder = new FeedForwardProcessor(START_SEED, ATTENTION_HEADS);
+        RealMatrix meanEmbeddings = feedforwarder.forward(attentionEmbeddings);
         // WordPredictor predictor = new SoftmaxWordPredictor();
         // String nextWord = predictor.predict();
         return "";

@@ -55,6 +55,8 @@ public class MultiHeadAttentionProcessor {
       }
     });
 
+    executorService.shutdown();
+
     long multiFinishTime = System.nanoTime();
     long multiElapsedTime = multiFinishTime - multiStartTime;
     System.out.println("Measured multi head attention time: " + multiElapsedTime);

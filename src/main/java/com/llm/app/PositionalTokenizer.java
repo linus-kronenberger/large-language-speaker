@@ -109,7 +109,7 @@ public class PositionalTokenizer {
     } catch (IOException e) {
       e.printStackTrace();
     }
-
+    System.out.println("Amount of tokens in library: " + vocabulary.keySet().size());
     return vocabulary;
   }
 

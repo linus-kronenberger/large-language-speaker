@@ -33,8 +33,6 @@ public class Utils {
         // embeddingMatrix.setEntry(i, 0, i);
         for (int j = 0; j < columns; j++) {
           double n = r.nextGaussian() * sigma;
-          // Printing the random Number
-          System.out.println("The next Gaussian value generated is: " + n);
           embeddingMatrix.setEntry(i, j, n);
         }
       }
@@ -43,8 +41,7 @@ public class Utils {
 
     // store matrix in file under EMBEDDING_FILE_PATH
 
-    try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath),
-        StandardOpenOption.CREATE_NEW.ordinal())) {
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
       for (int i = 0; i < rows ; i++) {
         for (int j = 0; j < columns ; j++) {
           writer.write(String.valueOf(embeddingMatrix.getEntry(i, j) + " "));
@@ -90,12 +87,19 @@ public class Utils {
     return loadedEmbeddingMatrix;
   }
 
-  public static void printMatrix(Array2DRowRealMatrix matrix) {
+  public static void printMatrix(Array2DRowRealMatrix matrix, boolean verbose) {
+    if(verbose == false) {
+      return;
+    }
     System.out.println("matrix rows: " + matrix.getRowDimension());
     System.out.println("matrix columns: " + matrix.getColumnDimension());
     for (int i = 0; i < matrix.getRowDimension(); i++) {
       System.out.println(Arrays.toString(matrix.getRow(i)));
     }
+  }
+
+  public static void printMatrix(Array2DRowRealMatrix matrix) {
+    printMatrix(matrix, false);
   }
 
   public static RealVector multiplyTransposedVectorWithMatrix(RealVector vector, RealMatrix matrix) {
