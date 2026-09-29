@@ -250,8 +250,8 @@ public class Utils {
     RealMatrix resMatrix = new Array2DRowRealMatrix(feededMatrix.getRowDimension(), feededMatrix.getColumnDimension());
     for (int row = 0; row < feededMatrix.getRowDimension(); row++) {
       for (int column = 0; column < feededMatrix.getColumnDimension(); column++) {
-        if(feededMatrix.getEntry(row, column) < 0.0) {
-          resMatrix.setEntry(row, column, 0.0);
+        if(feededMatrix.getEntry(row, column) > 0.0) {
+          resMatrix.setEntry(row, column, feededMatrix.getEntry(row, column));
         }
       }
     }

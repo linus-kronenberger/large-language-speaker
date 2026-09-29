@@ -18,6 +18,7 @@ public class MultiHeadAttentionProcessor {
   private double sigma;
   private int dimensions;
   private boolean parallelized;
+  private int transformerBlock = 0;
 
   public MultiHeadAttentionProcessor(int seed, double sigma, int dimensions, boolean parallelized) {
     this.seed = seed;
@@ -26,7 +27,8 @@ public class MultiHeadAttentionProcessor {
     this.parallelized = parallelized;
   }
 
-  public RealMatrix forwardMultiHead(int multiHeadLayers, RealMatrix posEmbeddings) throws IOException {
+  public RealMatrix forwardMultiHead(int multiHeadLayers, RealMatrix posEmbeddings, int transformerBlock) throws IOException {
+    this.transformerBlock = transformerBlock;
     RealMatrix normalized = Utils.performNormalization(posEmbeddings, 1e-5);
 
     ExecutorService executorService = Executors.newFixedThreadPool(parallelized ? multiHeadLayers : 1);
@@ -40,7 +42,7 @@ public class MultiHeadAttentionProcessor {
 
     try {
       for (int i = 0; i < multiHeadLayers; i++) {
-        AttentionTask task = new AttentionTask(seed + i * 3, sigma, i, dimensions, multiHeadLayers, normalized);
+        AttentionTask task = new AttentionTask(seed + i * 3, sigma, i, dimensions, multiHeadLayers, normalized, transformerBlock);
         results.add(executorService.submit(task));
       }
 
@@ -58,7 +60,7 @@ public class MultiHeadAttentionProcessor {
     long multiFinishTime = System.nanoTime();
     long multiElapsedTime = multiFinishTime - multiStartTime;
     System.out.println("Measured multi head attention time: " + multiElapsedTime);
-    attentionResultMatrix = Utils.multipleMatrices(attentionResultMatrix, Utils.buildMatrixIfNotExists(seed, sigma, dimensions, dimensions, "./result/attention_weights/wo.txt"));
+    attentionResultMatrix = Utils.multipleMatrices(attentionResultMatrix, Utils.buildMatrixIfNotExists(seed, sigma, dimensions, dimensions, "./model/transformer" + this.transformerBlock + "/attention_weights/wo.txt"));
     return posEmbeddings.add(attentionResultMatrix);
   }
 }

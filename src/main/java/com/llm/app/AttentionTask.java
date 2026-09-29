@@ -12,14 +12,16 @@ public class AttentionTask implements Callable<RealMatrix> {
   private RealMatrix posEmbeddings;
   private int seed;
   private double sigma;
+  private int transformerBlock = 0;
 
-  public AttentionTask(int seed, double sigma, int head, int dimensions, int multiHeadLayers, RealMatrix posEmbeddings) {
+  public AttentionTask(int seed, double sigma, int head, int dimensions, int multiHeadLayers, RealMatrix posEmbeddings, int transformerBlock) {
     this.seed = seed;
     this.sigma = sigma;
     this.head = head;
     this.dimensions = dimensions;
     this.multiHeadLayers = multiHeadLayers;
     this.posEmbeddings = posEmbeddings;
+    this.transformerBlock = transformerBlock;
   }
 
   @Override
@@ -52,19 +54,19 @@ public class AttentionTask implements Callable<RealMatrix> {
   }
 
   public RealMatrix buildQueryMatrix(int rows, int columns, int multiHeadLayer) {
-    String queryFilePath = "./result/attention_weights/query_" + String.valueOf(multiHeadLayer) + ".txt";
+    String queryFilePath = "./model/transformer"+transformerBlock+"/attention_weights/query_" + String.valueOf(multiHeadLayer) + ".txt";
     this.seed += 1;
     return Utils.buildMatrixIfNotExists(seed, sigma, rows, columns, queryFilePath);
   }
 
   public RealMatrix buildKeyMatrix(int rows, int columns, int multiHeadLayer) {
-    String keyFilePath = "./result/attention_weights/key_" + String.valueOf(multiHeadLayer) + ".txt";
+    String keyFilePath = "./model/transformer"+transformerBlock+"/attention_weights/key_" + String.valueOf(multiHeadLayer) + ".txt";
     this.seed += 1;
     return Utils.buildMatrixIfNotExists(seed, sigma, rows, columns, keyFilePath);
   }
 
   public RealMatrix buildValueMatrix(int rows, int columns, int multiHeadLayer) {
-    String valueFilePath = "./result/attention_weights/value_" + String.valueOf(multiHeadLayer) + ".txt";
+    String valueFilePath = "./model/transformer"+transformerBlock+"/attention_weights/value_" + String.valueOf(multiHeadLayer) + ".txt";
     this.seed += 1;
     return Utils.buildMatrixIfNotExists(seed, sigma, rows, columns, valueFilePath);
   }

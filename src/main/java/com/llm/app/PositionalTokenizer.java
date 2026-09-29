@@ -17,7 +17,7 @@ public class PositionalTokenizer {
   private int seed;
   private double sigma;
   private final String DATA_FILE_PATH = "./dataset/speeches.csv";
-  private final String EMBEDDING_FILE_PATH = "./result/embedding_lookup/embedding_matrix.txt";
+  private final String EMBEDDING_FILE_PATH = "./model/transformer/embedding_lookup/embedding_matrix.txt";
   private Map<String, Integer> vocabulary;
 
   public PositionalTokenizer(int seed, double sigma, int tokenCount, int dimensions) {
