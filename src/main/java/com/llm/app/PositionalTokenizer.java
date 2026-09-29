@@ -72,12 +72,13 @@ public class PositionalTokenizer {
       wordEmbeddingVector = embeddingMatrix.getRow(tokenNumber);
     }
     for (int i = 0; i < positionalEmbedding.length; i++) {
+      double exponent = (2.0 * Math.floor(i / 2.0)) / dimensions;
       if(i%2 == 0) {
         // even indices use sinusoidal pos embeddings
-        positionalEmbedding[i] = Math.sin(position / Math.pow(10000.0, (2*i) / dimensions));
+        positionalEmbedding[i] = Math.sin(position / Math.pow(10000.0, exponent));
       } else {
         // odd indices use cosinoidal pos embeddings
-        positionalEmbedding[i] = Math.cos(position / Math.pow(10000.0, (2*i) / dimensions));
+        positionalEmbedding[i] = Math.cos(position / Math.pow(10000.0, exponent));
       }
     }
     return addVectors(wordEmbeddingVector, positionalEmbedding);

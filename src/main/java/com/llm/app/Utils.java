@@ -7,7 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -217,7 +216,7 @@ public class Utils {
     return matrix;
   }
 
-  public static RealMatrix concatenateMatricesHorizontally(RealMatrix matrix1, RealMatrix matrix2) {
+  public static void concatenateMatricesHorizontally(RealMatrix matrix1, RealMatrix matrix2) {
     System.out.println("Concatenating matrices.");
     printMatrix((Array2DRowRealMatrix) matrix1);
     // first search for index
@@ -230,7 +229,6 @@ public class Utils {
     }
     if(emptyIndex == -1) {
       System.out.println("Matrix 1 is already full. Concatenation with matrix 2 not possible.");
-      return matrix1;
     }
 
     for (int row = 0; row < matrix1.getRowDimension(); row++) {
@@ -242,7 +240,6 @@ public class Utils {
     }
     System.out.println("Calculated concatenated matrix:");
     printMatrix((Array2DRowRealMatrix) matrix1);
-    return matrix1;
   }
 
   public static void performReLuActivation(RealMatrix feededMatrix) {

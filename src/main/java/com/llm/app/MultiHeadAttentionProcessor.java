@@ -26,7 +26,7 @@ public class MultiHeadAttentionProcessor {
     this.parallelized = parallelized;
   }
 
-  public RealMatrix forwardMultiHead(int multiHeadLayers, RealMatrix posEmbeddings) {
+  public RealMatrix forwardMultiHead(int multiHeadLayers, RealMatrix posEmbeddings) throws IOException {
     RealMatrix normalized = Utils.performNormalization(posEmbeddings, 1e-5);
 
     ExecutorService executorService = Executors.newFixedThreadPool(parallelized ? multiHeadLayers : 1);
@@ -58,7 +58,7 @@ public class MultiHeadAttentionProcessor {
     long multiFinishTime = System.nanoTime();
     long multiElapsedTime = multiFinishTime - multiStartTime;
     System.out.println("Measured multi head attention time: " + multiElapsedTime);
-
+    attentionResultMatrix = Utils.multipleMatrices(attentionResultMatrix, Utils.buildMatrixIfNotExists(seed, sigma, dimensions, dimensions, "./result/attention_weights/wo.txt"));
     return posEmbeddings.add(attentionResultMatrix);
   }
 }
