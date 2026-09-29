@@ -21,10 +21,10 @@ public class App
         App app = new App();
         String prompt = "Niemand hat die Absicht eine Mauer zu errichten. ";
         // Double
-        String result = app.generateText(prompt);
+        String tokenOutput = app.generateText(prompt);
         System.out.println("User: " + prompt);
         System.out.println("------------------------------");
-        System.out.println("Assistant: " + result);
+        System.out.println("Assistant: " + tokenOutput);
     }
 
     public String generateText(String prompt) throws IOException {
@@ -33,23 +33,28 @@ public class App
         String nextWord = "";
         int predictions = 0;
         while (nextWord != "<eos>" && predictions < MAX_OUTPUT_TOKEN_AMOUNT){
-            RealMatrix posEmbeddings = tokenizer.embeddSentence(prompt);
-            MultiHeadAttentionProcessor
-                multiHeadAttentionProcessor = new MultiHeadAttentionProcessor(START_SEED, SIGMA, EMBEDDING_DIMENSIONS, PARALLELIZED);
-            FeedForwardProcessor feedforwarder = new FeedForwardProcessor(START_SEED, ATTENTION_HEADS);
-            RealMatrix encodingOutputEmbeddings = posEmbeddings.copy();
-            for (int transformerBlock = 0; transformerBlock < TRANSFORMER_BLOCK_AMOUNT; transformerBlock++) {
-                RealMatrix attentionEmbeddings = multiHeadAttentionProcessor.forwardMultiHead(ATTENTION_HEADS, encodingOutputEmbeddings, transformerBlock);
-                encodingOutputEmbeddings = feedforwarder.forward(attentionEmbeddings, FEED_FORWARD_DIMENSIONS, transformerBlock);
-            }
-
-            SoftmaxTokenPredictor tokenPredictor = new SoftmaxTokenPredictor(tokenizer.getVocabulary(), START_SEED, SIGMA, ATTENTION_HEADS);
-            nextWord = tokenPredictor.predictNextToken(encodingOutputEmbeddings, TEMPERATURE);
+            nextWord = forwardPass(tokenizer, prompt);
             generatedText += nextWord + " ";
             prompt += nextWord + " ";
             predictions ++;
         }
 
         return generatedText;
+    }
+
+    public String forwardPass(PositionalTokenizer tokenizer, String prompt) throws IOException {
+        RealMatrix posEmbeddings = tokenizer.embeddSentence(prompt);
+        MultiHeadAttentionProcessor
+            multiHeadAttentionProcessor = new MultiHeadAttentionProcessor(START_SEED, SIGMA, EMBEDDING_DIMENSIONS, PARALLELIZED);
+        FeedForwardProcessor feedforwarder = new FeedForwardProcessor(START_SEED, ATTENTION_HEADS);
+        RealMatrix encodingOutputEmbeddings = posEmbeddings.copy();
+        for (int transformerBlock = 0; transformerBlock < TRANSFORMER_BLOCK_AMOUNT; transformerBlock++) {
+            RealMatrix attentionEmbeddings = multiHeadAttentionProcessor.forwardMultiHead(ATTENTION_HEADS, encodingOutputEmbeddings, transformerBlock);
+            encodingOutputEmbeddings = feedforwarder.forward(attentionEmbeddings, FEED_FORWARD_DIMENSIONS, transformerBlock);
+        }
+
+        SoftmaxTokenPredictor tokenPredictor = new SoftmaxTokenPredictor(tokenizer.getVocabulary(), START_SEED, SIGMA, ATTENTION_HEADS);
+        String nextWord = tokenPredictor.predictNextToken(encodingOutputEmbeddings, TEMPERATURE);
+        return nextWord;
     }
 }
