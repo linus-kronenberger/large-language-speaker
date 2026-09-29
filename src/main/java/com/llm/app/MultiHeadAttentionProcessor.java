@@ -1,10 +1,8 @@
 package com.llm.app;
 
 import java.io.IOException;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -15,6 +13,7 @@ import org.apache.commons.math3.linear.RealMatrix;
 public class MultiHeadAttentionProcessor {
 
   private int seed;
+  private int startSeed;
   private double sigma;
   private int dimensions;
   private boolean parallelized;
@@ -22,6 +21,7 @@ public class MultiHeadAttentionProcessor {
 
   public MultiHeadAttentionProcessor(int seed, double sigma, int dimensions, boolean parallelized) {
     this.seed = seed;
+    this.startSeed = seed;
     this.sigma = sigma;
     this.dimensions = dimensions;
     this.parallelized = parallelized;
@@ -42,7 +42,8 @@ public class MultiHeadAttentionProcessor {
 
     try {
       for (int i = 0; i < multiHeadLayers; i++) {
-        AttentionTask task = new AttentionTask(seed + i * 3, sigma, i, dimensions, multiHeadLayers, normalized, transformerBlock);
+        seed = startSeed + i * 3;
+        AttentionTask task = new AttentionTask(seed, sigma, i, dimensions, multiHeadLayers, normalized, transformerBlock);
         results.add(executorService.submit(task));
       }
 
@@ -60,7 +61,8 @@ public class MultiHeadAttentionProcessor {
     long multiFinishTime = System.nanoTime();
     long multiElapsedTime = multiFinishTime - multiStartTime;
     System.out.println("Measured multi head attention time: " + multiElapsedTime);
-    attentionResultMatrix = Utils.multipleMatrices(attentionResultMatrix, Utils.buildMatrixIfNotExists(seed, sigma, dimensions, dimensions, "./model/transformer" + this.transformerBlock + "/attention_weights/wo.txt"));
+    seed += 1;
+    attentionResultMatrix = Utils.multipleMatrices(attentionResultMatrix, Utils.buildMatrixIfNotExists(seed, sigma, dimensions, dimensions, "./model/transformer" + this.transformerBlock + "/attention_weights/w0.txt"));
     return posEmbeddings.add(attentionResultMatrix);
   }
 }

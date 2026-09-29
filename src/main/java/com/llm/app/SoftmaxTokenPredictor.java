@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 
@@ -35,7 +36,8 @@ public class SoftmaxTokenPredictor {
       consideredOutputs.add(softmaxEntry);
     }
 
-    double predictionRandomValue = Math.random();
+    Random random = new Random(seed);
+    double predictionRandomValue =  random.nextDouble();
     double cum = 0.0;
     int nextTokenIndex = 0;
     for (int i = 0; i < consideredOutputs.size(); i++) {
