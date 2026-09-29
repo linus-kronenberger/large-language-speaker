@@ -40,6 +40,9 @@ public class SoftmaxTokenPredictor {
     int nextTokenIndex = 0;
     for (int i = 0; i < consideredOutputs.size(); i++) {
       double entry = consideredOutputs.get(i);
+      if (entry - i <= 0.0) {
+        continue;
+      }
       int index = 0;
       for (int j = 0; j < softmaxResult.getColumnDimension(); j++) {
         if((entry - j - 1) <= 0)  {

@@ -168,29 +168,39 @@ public class Utils {
   }
 
   public static RealMatrix calculateSoftmax(RealMatrix matrix, double temperature) {
-    System.out.println("Calculating softmax...");
-    RealMatrix resultMatrix = new Array2DRowRealMatrix(matrix.getRowDimension(), matrix.getColumnDimension());
+    if (temperature < 0) {
+      throw new IllegalArgumentException("temperature must be >= 0");
+    }
 
-    for (int i = 0; i < matrix.getRowDimension(); i++) {
-      double maxRowValue = matrix.getEntry(i, 0);
-      for (int j = 1; j < matrix.getColumnDimension(); j++) {
-        if (maxRowValue < matrix.getEntry(i, j)) {
-          maxRowValue = matrix.getEntry(i, j);
+    int rows = matrix.getRowDimension();
+    int cols = matrix.getColumnDimension();
+    RealMatrix resultMatrix = new Array2DRowRealMatrix(rows, cols);
+
+    for (int i = 0; i < rows; i++) {
+
+      int best = 0;
+      for (int j = 1; j < cols; j++) {
+        if (matrix.getEntry(i, j) > matrix.getEntry(i, best)) {
+          best = j;
         }
       }
 
-      double sum = 0.0;
-      for (int j = 0; j < matrix.getColumnDimension(); j++) {
-        sum += Math.exp((matrix.getEntry(i, j) - maxRowValue) / temperature);
+      if (temperature == 0.0) {
+        resultMatrix.setEntry(i, best, 1.0);
+        continue;
       }
 
-      for (int j = 0; j < matrix.getColumnDimension(); j++) {
-        double newEntry = Math.exp((matrix.getEntry(i, j) - maxRowValue) / temperature) / sum;
-        resultMatrix.setEntry(i, j, newEntry);
+      double maxRowValue = matrix.getEntry(i, best);
+      double[] exps = new double[cols];
+      double sum = 0.0;
+      for (int j = 0; j < cols; j++) {
+        exps[j] = Math.exp((matrix.getEntry(i, j) - maxRowValue) / temperature);
+        sum += exps[j];
+      }
+      for (int j = 0; j < cols; j++) {
+        resultMatrix.setEntry(i, j, exps[j] / sum);
       }
     }
-
-    printMatrix((Array2DRowRealMatrix) resultMatrix);
     return resultMatrix;
   }
 
