@@ -13,11 +13,11 @@ public class App
     final boolean PARALLELIZED = true;
     final int FEED_FORWARD_DIMENSIONS = 4 * EMBEDDING_DIMENSIONS;
     final int OUTPUT_TOKEN_AMOUNT = 100;
-    final double TEMPERATURE = 0.5;
+    final double TEMPERATURE = 1;
 
     public static void main( String[] args ) throws IOException {
         App app = new App();
-        String prompt = "Niemand hat die Absicht, eine Mauer zu errichten.";
+        String prompt = "des Alterspräsidenten ";
         String result = app.generateText(prompt);
         System.out.println("User: " + prompt);
         System.out.println("------------------------------");
