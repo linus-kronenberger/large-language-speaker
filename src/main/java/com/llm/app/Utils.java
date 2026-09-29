@@ -216,13 +216,15 @@ public class Utils {
     return matrix;
   }
 
-  public static void concatenateMatricesHorizontally(RealMatrix matrix1, RealMatrix matrix2) {
+  public static RealMatrix concatenateMatricesHorizontally(RealMatrix matrix1, RealMatrix matrix2) {
+    RealMatrix resMatrix = matrix1.copy();
     System.out.println("Concatenating matrices.");
-    printMatrix((Array2DRowRealMatrix) matrix1);
+    printMatrix((Array2DRowRealMatrix) resMatrix);
+
     // first search for index
     int emptyIndex = -1;
-    for (int i = 0; i < matrix1.getColumnDimension(); i++) {
-      if(matrix1.getEntry(0, i) == 0.0) {
+    for (int i = 0; i < resMatrix.getColumnDimension(); i++) {
+      if(resMatrix.getEntry(0, i) == 0.0) {
         emptyIndex = i;
         break;
       }
@@ -231,25 +233,29 @@ public class Utils {
       System.out.println("Matrix 1 is already full. Concatenation with matrix 2 not possible.");
     }
 
-    for (int row = 0; row < matrix1.getRowDimension(); row++) {
+    for (int row = 0; row < resMatrix.getRowDimension(); row++) {
       int secondColumn = 0;
       for (int column = emptyIndex; column < emptyIndex + matrix2.getColumnDimension(); column++) {
-        matrix1.setEntry(row, column, matrix2.getEntry(row, secondColumn));
+        resMatrix.setEntry(row, column, matrix2.getEntry(row, secondColumn));
         secondColumn ++;
       }
     }
+
     System.out.println("Calculated concatenated matrix:");
-    printMatrix((Array2DRowRealMatrix) matrix1);
+    printMatrix((Array2DRowRealMatrix) resMatrix);
+    return resMatrix;
   }
 
-  public static void performReLuActivation(RealMatrix feededMatrix) {
+  public static RealMatrix performReLuActivation(RealMatrix feededMatrix) {
+    RealMatrix resMatrix = new Array2DRowRealMatrix(feededMatrix.getRowDimension(), feededMatrix.getColumnDimension());
     for (int row = 0; row < feededMatrix.getRowDimension(); row++) {
       for (int column = 0; column < feededMatrix.getColumnDimension(); column++) {
         if(feededMatrix.getEntry(row, column) < 0.0) {
-          feededMatrix.setEntry(row, column, 0.0);
+          resMatrix.setEntry(row, column, 0.0);
         }
       }
     }
+    return resMatrix;
   }
 
   public static RealMatrix performNormalization(RealMatrix matrix, double epsilon) {

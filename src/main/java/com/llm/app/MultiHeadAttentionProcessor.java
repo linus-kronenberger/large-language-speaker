@@ -46,7 +46,7 @@ public class MultiHeadAttentionProcessor {
 
       for (Future<RealMatrix> result : results) {
         try {
-          Utils.concatenateMatricesHorizontally(attentionResultMatrix, result.get());
+          attentionResultMatrix = Utils.concatenateMatricesHorizontally(attentionResultMatrix, result.get());
         } catch (InterruptedException | ExecutionException e) {
           throw new RuntimeException(e);
         }

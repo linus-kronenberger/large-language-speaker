@@ -23,7 +23,7 @@ public class FeedForwardProcessor {
     RealMatrix hiddenWeights = Utils.buildMatrixIfNotExists(seed, 0.02,
         normalized.getColumnDimension(), feedForwardActivationDimension, hiddenWeightsFilePath);
     RealMatrix hiddenLayerResult = Utils.multipleMatrices(normalized, hiddenWeights);
-    Utils.performReLuActivation(hiddenLayerResult);
+    hiddenLayerResult = Utils.performReLuActivation(hiddenLayerResult);
 
     System.out.println("Result Embeddings after hidden layer calculation: ");
     Utils.printMatrix((Array2DRowRealMatrix) hiddenLayerResult, true);
