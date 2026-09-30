@@ -9,9 +9,9 @@ import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 
 public class SoftmaxTokenPredictor {
-  private Map<String, Integer> vocabulary;
-  private int seed;
-  private double sigma;
+  private final Map<String, Integer> vocabulary;
+  private final int seed;
+  private final double sigma;
 
   public SoftmaxTokenPredictor(Map<String, Integer> vocabulary, int seed, double sigma, int attentionHeads) {
     this.vocabulary = vocabulary;

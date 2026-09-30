@@ -13,7 +13,7 @@ public class App
     final boolean PARALLELIZED = true;
     final int FEED_FORWARD_DIMENSIONS = 4 * EMBEDDING_DIMENSIONS;
     final int MAX_OUTPUT_TOKEN_AMOUNT = 10;
-    final double TEMPERATURE = 0.0;
+    final double TEMPERATURE = 1.0;
     final int TRANSFORMER_BLOCK_AMOUNT = 2;
 
     static void main() throws IOException {

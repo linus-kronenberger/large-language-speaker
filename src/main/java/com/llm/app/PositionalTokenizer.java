@@ -11,12 +11,10 @@ import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 
 public class PositionalTokenizer {
-  private int tokenCount;
-  private int dimensions;
-  private int seed;
-  private double sigma;
-  private final String DATA_FILE_PATH = "./dataset/speeches.csv";
-  private final String EMBEDDING_FILE_PATH = "./model/transformer/embedding_lookup/embedding_matrix.txt";
+  private final int tokenCount;
+  private final int dimensions;
+  private final int seed;
+  private final double sigma;
   private Map<String, Integer> vocabulary;
 
   public PositionalTokenizer(int seed, double sigma, int tokenCount, int dimensions) {
@@ -29,7 +27,9 @@ public class PositionalTokenizer {
 
   public RealMatrix embeddSentence(String sentence) throws IOException {
     vocabulary = buildVocabulary();
-    RealMatrix embeddingMatrix = Utils.buildMatrixIfNotExists(seed, sigma, vocabulary.keySet().size(), dimensions, EMBEDDING_FILE_PATH);
+    String EMBEDDING_FILE_PATH = "./model/transformer/embedding_lookup/embedding_matrix.txt";
+    RealMatrix embeddingMatrix = Utils.buildMatrixIfNotExists(seed, sigma, vocabulary.keySet().size(), dimensions,
+        EMBEDDING_FILE_PATH);
     List<String> wordList = List.of(sentence.split(" |(\\n)"));
     RealMatrix tokenPosEmbeddings = new Array2DRowRealMatrix(wordList.size(), dimensions);
 
@@ -80,7 +80,7 @@ public class PositionalTokenizer {
         positionalEmbedding[i] = Math.cos(position / Math.pow(10000.0, exponent));
       }
     }
-    return addVectors(wordEmbeddingVector, positionalEmbedding);
+    return Utils.addVectors(wordEmbeddingVector, positionalEmbedding);
   }
 
   public Map<String, Integer > buildVocabulary() {
@@ -91,6 +91,7 @@ public class PositionalTokenizer {
     AtomicInteger count = new AtomicInteger(0);
     vocabulary.put("NULL", 0);
     AtomicInteger wordIndex = new AtomicInteger(1);
+    String DATA_FILE_PATH = "./dataset/speeches.csv";
     try (BufferedReader reader = new BufferedReader(new FileReader(DATA_FILE_PATH))) {
       while ((line = reader.readLine()) != null) {
         System.out.println(line);
@@ -112,17 +113,6 @@ public class PositionalTokenizer {
     }
     System.out.println("Amount of tokens in library: " + vocabulary.keySet().size());
     return vocabulary;
-  }
-
-  public double[] addVectors(double[] vec1, double[] vec2) {
-    if(vec1.length != vec2.length) {
-      throw new IllegalArgumentException("vectors of different lengths can not be added");
-    }
-    double[] result = new double[vec1.length];
-    for (int i = 0; i < vec1.length; i++) {
-      result[i] = vec1[i] + vec2[i];
-    }
-    return result;
   }
 
   public Map<String, Integer> getVocabulary() {

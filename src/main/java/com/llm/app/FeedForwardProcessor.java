@@ -5,17 +5,13 @@ import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 
 public class FeedForwardProcessor {
-  private int seed;
-  private int attentionHeads;
-  private int transformerBlock = 0;
+  private final int seed;
 
   public FeedForwardProcessor(int seed, int attentionHeads) {
-    this.attentionHeads = attentionHeads;
     this.seed = seed + attentionHeads * 3 + 1;
   }
 
   public RealMatrix forward(RealMatrix attentionEmbeddings, int feedForwardActivationDimension, int transformerBlock) throws IOException {
-    this.transformerBlock = transformerBlock;
     RealMatrix normalized = Utils.performNormalization(attentionEmbeddings, 1e-5);
 
     System.out.println("---------FEED FORWARD LAYER---------");
@@ -34,7 +30,7 @@ public class FeedForwardProcessor {
 
     RealMatrix finalWeights = Utils.buildMatrixIfNotExists(seed + 1, 0.02, hiddenLayerResult.getColumnDimension(), normalized.getColumnDimension(), finalFeedForwardFilePath);
     feededMatrix = Utils.multipleMatrices(hiddenLayerResult, finalWeights);
-
-    return attentionEmbeddings.add(feededMatrix);
+    RealMatrix resultMatrix = attentionEmbeddings.add(feededMatrix);
+    return resultMatrix;
   }
 }

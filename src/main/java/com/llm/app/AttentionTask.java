@@ -6,12 +6,12 @@ import org.apache.commons.math3.linear.RealMatrix;
 
 public class AttentionTask implements Callable<RealMatrix> {
 
-  private int head;
-  private int dimensions;
-  private int multiHeadLayers;
-  private RealMatrix posEmbeddings;
+  private final int head;
+  private final int dimensions;
+  private final int multiHeadLayers;
+  private final RealMatrix posEmbeddings;
   private int seed;
-  private double sigma;
+  private final double sigma;
   private int transformerBlock = 0;
 
   public AttentionTask(int seed, double sigma, int head, int dimensions, int multiHeadLayers, RealMatrix posEmbeddings, int transformerBlock) {
