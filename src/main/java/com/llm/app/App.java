@@ -15,19 +15,25 @@ public class App
     final int MAX_OUTPUT_TOKEN_AMOUNT = 10;
     final double TEMPERATURE = 1.0;
     final int TRANSFORMER_BLOCK_AMOUNT = 1;
-    final int CONTEXT_WINDOW = 50;
+    final int CONTEXT_WINDOW = 100;
+    final boolean TRAIN = false;
+    String prompt = "Niemand hat die Absicht eine Mauer zu errichten. ";
 
     static void main() throws IOException {
         App app = new App();
-        String prompt = "Niemand hat die Absicht eine Mauer zu errichten. ";
-        // Double
-        if(prompt.length() > app.CONTEXT_WINDOW) {
-            prompt = prompt.substring(prompt.length() - app.CONTEXT_WINDOW - 1, prompt.length() - 1);
+        if(app.TRAIN == false) {
+            String tokenOutput = app.generateText(app.prompt);
+            if(app.prompt.length() > app.CONTEXT_WINDOW) {
+                System.out.println("prompt was bigger than the maximum context window. Had to be cut directly..");
+                System.out.println("User: " + app.prompt.substring(app.prompt.length() - app.CONTEXT_WINDOW - 1, app.prompt.length() - 1));
+            } else {
+                System.out.println("User: " + app.prompt);
+            }
+            System.out.println("------------------------------");
+            System.out.println("Assistant: " + tokenOutput);
+        } else {
+         ;
         }
-        String tokenOutput = app.generateText(prompt);
-        System.out.println("User: " + prompt);
-        System.out.println("------------------------------");
-        System.out.println("Assistant: " + tokenOutput);
     }
 
     public String generateText(String prompt) throws IOException {
@@ -35,6 +41,9 @@ public class App
         String nextWord = "";
         int predictions = 0;
         while (!nextWord.equals("<eos>") && predictions < MAX_OUTPUT_TOKEN_AMOUNT){
+            if(prompt.length() > CONTEXT_WINDOW) {
+                prompt = prompt.substring(prompt.length() - CONTEXT_WINDOW - 1, prompt.length() - 1);
+            }
             nextWord = forwardPass(prompt);
             if(nextWord.equals("<eos>")) {
                 break;
