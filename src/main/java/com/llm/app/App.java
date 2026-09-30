@@ -18,6 +18,11 @@ public class App
     final int CONTEXT_WINDOW = 100;
     final boolean TRAIN = false;
     String prompt = "Niemand hat die Absicht eine Mauer zu errichten. ";
+    final int BATCH_SIZE = 32;
+    final double LEARNING_RATE = 1e-5;
+    final double WARM_UP_RATE = 0.1;
+    final int TRAIN_LINES = 1000;
+    final int EPOCHS = 5;
 
     static void main() throws IOException {
         App app = new App();
@@ -32,8 +37,20 @@ public class App
             System.out.println("------------------------------");
             System.out.println("Assistant: " + tokenOutput);
         } else {
-         ;
+            System.out.println("Training model with parameters..");
+            double finalLoss = app.trainModel();
+            System.out.println("------------------------------");
+            System.out.println("Final loss: " + finalLoss);
         }
+    }
+
+    public double trainModel() {
+        double loss = 1.0;
+        Trainer trainer = new Trainer(BATCH_SIZE, LEARNING_RATE, WARM_UP_RATE, TRAIN_LINES);
+        for (int i = 0; i < EPOCHS; i++) {
+            loss = trainer.train();
+        }
+        return loss;
     }
 
     public String generateText(String prompt) throws IOException {
