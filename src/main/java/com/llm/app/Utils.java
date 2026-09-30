@@ -66,7 +66,7 @@ public class Utils {
     RealMatrix loadedEmbeddingMatrix = new Array2DRowRealMatrix(tokenCount, EMBEDDING_DIMENSIONS);
     try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
       List<String> allLines = reader.readAllLines();
-      if(allLines.size() < tokenCount) {
+      if(allLines.size() != tokenCount) {
         return null;
       }
       for (int i = 0; i < allLines.size(); i++) {

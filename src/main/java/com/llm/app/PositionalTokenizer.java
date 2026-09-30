@@ -66,7 +66,7 @@ public class PositionalTokenizer {
       int tokenNumber = vocabulary.get(word);
       wordEmbeddingVector = embeddingMatrix.getRow(tokenNumber);
     } else {
-      int tokenNumber =  vocabulary.get("NULL");
+      int tokenNumber =  vocabulary.get("<null>");
       System.out.println("Word: " + word + " not known.");
       wordEmbeddingVector = embeddingMatrix.getRow(tokenNumber);
     }
@@ -89,14 +89,15 @@ public class PositionalTokenizer {
     String line = "";
     int vocabLimit = this.tokenCount; // max value is 25605402
     AtomicInteger count = new AtomicInteger(0);
-    vocabulary.put("NULL", 0);
-    AtomicInteger wordIndex = new AtomicInteger(1);
+    vocabulary.put("<null>", 0);
+    vocabulary.put("<eos>", 1);
+    AtomicInteger wordIndex = new AtomicInteger(2);
     String DATA_FILE_PATH = "./dataset/speeches.csv";
     try (BufferedReader reader = new BufferedReader(new FileReader(DATA_FILE_PATH))) {
       while ((line = reader.readLine()) != null) {
         System.out.println(line);
         List<String> vocabWords = List.of(line.split(" "));
-        vocabWords.forEach(word -> {
+        vocabWords.parallelStream().forEachOrdered(word -> {
           if(!vocabulary.containsKey(word)) {
             vocabulary.put(word, wordIndex.get());
             System.out.println("Added token to vocabulary: " + wordIndex + "   " + word);

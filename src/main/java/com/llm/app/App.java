@@ -5,7 +5,7 @@ import org.apache.commons.math3.linear.RealMatrix;
 
 public class App 
 {
-    final int TOKEN_COUNT = 1000;
+    final int TOKEN_COUNT = 100;
     final int EMBEDDING_DIMENSIONS = 120;
     final int ATTENTION_HEADS = 12;
     private int START_SEED = 1;
@@ -14,7 +14,8 @@ public class App
     final int FEED_FORWARD_DIMENSIONS = 4 * EMBEDDING_DIMENSIONS;
     final int MAX_OUTPUT_TOKEN_AMOUNT = 10;
     final double TEMPERATURE = 1.0;
-    final int TRANSFORMER_BLOCK_AMOUNT = 2;
+    final int TRANSFORMER_BLOCK_AMOUNT = 1;
+    final int CONTEXT_WINDOW = 500;
 
     static void main() throws IOException {
         App app = new App();
@@ -30,8 +31,11 @@ public class App
         String generatedText = "";
         String nextWord = "";
         int predictions = 0;
-        while (nextWord != "<eos>" && predictions < MAX_OUTPUT_TOKEN_AMOUNT){
+        while (!nextWord.equals("<eos>") && predictions < MAX_OUTPUT_TOKEN_AMOUNT){
             nextWord = forwardPass(prompt);
+            if(nextWord.equals("<eos>")) {
+                break;
+            }
             generatedText += nextWord + " ";
             prompt += nextWord + " ";
             predictions ++;

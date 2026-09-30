@@ -36,7 +36,7 @@ public class SoftmaxTokenPredictor {
       consideredOutputs.add(softmaxEntry);
     }
 
-    Random random = new Random(seed);
+    Random random = new Random();
     double predictionRandomValue =  random.nextDouble();
     double cum = 0.0;
     int nextTokenIndex = 0;
