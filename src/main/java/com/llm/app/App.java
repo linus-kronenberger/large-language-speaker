@@ -15,12 +15,15 @@ public class App
     final int MAX_OUTPUT_TOKEN_AMOUNT = 10;
     final double TEMPERATURE = 1.0;
     final int TRANSFORMER_BLOCK_AMOUNT = 1;
-    final int CONTEXT_WINDOW = 500;
+    final int CONTEXT_WINDOW = 50;
 
     static void main() throws IOException {
         App app = new App();
         String prompt = "Niemand hat die Absicht eine Mauer zu errichten. ";
         // Double
+        if(prompt.length() > app.CONTEXT_WINDOW) {
+            prompt = prompt.substring(prompt.length() - app.CONTEXT_WINDOW - 1, prompt.length() - 1);
+        }
         String tokenOutput = app.generateText(prompt);
         System.out.println("User: " + prompt);
         System.out.println("------------------------------");
