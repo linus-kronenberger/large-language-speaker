@@ -12,9 +12,9 @@ public class App
     final boolean TRAIN = true;
     final boolean PARALLELIZED = true;
 
-    final int TOKEN_COUNT = 100;
-    final int EMBEDDING_DIMENSIONS = 120;
-    final int ATTENTION_HEADS = 12;
+    final int TOKEN_COUNT = 50;
+    final int EMBEDDING_DIMENSIONS = 10;
+    final int ATTENTION_HEADS = 2;
     private int START_SEED = 1;
     final int FEED_FORWARD_DIMENSIONS = 4 * EMBEDDING_DIMENSIONS;
     final int MAX_OUTPUT_TOKEN_AMOUNT = 10;
@@ -26,9 +26,16 @@ public class App
 
     final double SIGMA = 0.02;
     final double TRAIN_TEMPERATURE = 1.0;
+
     final double TEMPERATURE = 1.0;
     final double LEARNING_RATE = 1e-5;
     final double WARM_UP_RATE = 0.1;
+
+    private PositionalTokenizer tokenizer;
+
+    public App() {
+        this.tokenizer = new PositionalTokenizer(this.START_SEED, SIGMA, TOKEN_COUNT, EMBEDDING_DIMENSIONS, SPLIT_REGEX);
+    }
 
     static void main() throws IOException {
         App app = new App();
@@ -81,7 +88,6 @@ public class App
     }
 
     public String inferenceForwardPass(String prompt) throws IOException {
-        PositionalTokenizer tokenizer = new PositionalTokenizer(this.START_SEED, SIGMA, TOKEN_COUNT, EMBEDDING_DIMENSIONS, SPLIT_REGEX);
         RealMatrix posEmbeddings = tokenizer.embeddSentence(prompt);
         RealMatrix encodingOutputEmbeddings = posEmbeddings.copy();
         for (int transformerBlock = 0; transformerBlock < TRANSFORMER_BLOCK_AMOUNT; transformerBlock++) {
@@ -100,7 +106,6 @@ public class App
     }
 
     public RealMatrix trainForwardPass(String prompt) throws  IOException {
-        PositionalTokenizer tokenizer = new PositionalTokenizer(this.START_SEED, SIGMA, TOKEN_COUNT, EMBEDDING_DIMENSIONS, SPLIT_REGEX);
         RealMatrix posEmbeddings = tokenizer.embeddSentence(prompt);
         RealMatrix encodingOutputEmbeddings = posEmbeddings.copy();
         for (int transformerBlock = 0; transformerBlock < TRANSFORMER_BLOCK_AMOUNT; transformerBlock++) {
@@ -114,5 +119,9 @@ public class App
         SoftmaxTokenPredictor tokenPredictor = new SoftmaxTokenPredictor(tokenizer.getVocabulary(), this.START_SEED, SIGMA, ATTENTION_HEADS);
         RealMatrix softmaxResult = tokenPredictor.generateSoftmaxResult(encodingOutputEmbeddings, TEMPERATURE);
         return softmaxResult;
+    }
+
+    public int getIndexForToken(String expectedToken) {
+        return tokenizer.getIndexForToken(expectedToken);
     }
 }

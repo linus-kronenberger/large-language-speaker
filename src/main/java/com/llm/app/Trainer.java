@@ -1,12 +1,13 @@
 package com.llm.app;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.RealMatrix;
 
 public class Trainer {
   private int batchSize;
@@ -33,12 +34,27 @@ public class Trainer {
     Map<String, String> trainingLookup = createTrainingDataset();
     for (int i = 0; i < trainingLookup.keySet().size(); i++) {
       String prompt = trainingLookup.keySet().stream().toList().get(i);
-      String expectedToken = trainingLookup.get(prompt).substring(prompt.length(), trainingLookup.get(prompt).length());
+      String expectedToken = trainingLookup.get(prompt)
+          .substring(prompt.length())
+          .trim();
       System.out.println("prompt: " + prompt + " expected token: " + expectedToken);
-      // String nextToken = app.forwardPass((String) );
+      RealMatrix softmaxResult = app.trainForwardPass(prompt);
+      softmaxResult = softmaxResult.getRowMatrix(softmaxResult.getRowDimension() - 1);
+      // create one-hot-vector
+      int correctIndex = app.getIndexForToken(expectedToken);
+      RealMatrix oneHotVector = createOneHotVector(correctIndex, softmaxResult.getColumnDimension());
+      System.out.println("One-hot vector: ");
+      Utils.printMatrix((Array2DRowRealMatrix) oneHotVector, true);
+      RealMatrix differenceSoftmaxMatrix = softmaxResult.subtract(oneHotVector);
     }
     double loss = -1.0;
     return loss;
+  }
+
+  public RealMatrix createOneHotVector(int correctIndex, int tokenCount) {
+    RealMatrix oneHotVector = new Array2DRowRealMatrix(1, tokenCount);
+    oneHotVector.setEntry(0, correctIndex, 1.0);
+    return oneHotVector;
   }
 
   // todo: Implement batch size

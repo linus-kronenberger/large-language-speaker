@@ -28,7 +28,7 @@ public class PositionalTokenizer {
   }
 
   public RealMatrix embeddSentence(String sentence) throws IOException {
-    vocabulary = buildVocabulary();
+    this.vocabulary = buildVocabulary();
     String EMBEDDING_FILE_PATH = "./model/transformer/embedding_lookup/embedding_matrix.txt";
     RealMatrix embeddingMatrix = Utils.buildMatrixIfNotExists(seed, sigma, vocabulary.keySet().size(), dimensions,
         EMBEDDING_FILE_PATH);
@@ -120,5 +120,15 @@ public class PositionalTokenizer {
 
   public Map<String, Integer> getVocabulary() {
     return vocabulary;
+  }
+
+  public int getIndexForToken(String expectedToken) {
+    if(vocabulary == null) {
+      this.vocabulary = buildVocabulary();
+    }
+    if(vocabulary.get(expectedToken) == null) {
+      return 0;
+    }
+    return vocabulary.get(expectedToken);
   }
 }
