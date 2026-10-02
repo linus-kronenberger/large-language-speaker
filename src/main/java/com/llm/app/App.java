@@ -1,13 +1,12 @@
 package com.llm.app;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.apache.commons.math3.linear.RealMatrix;
 
 public class App 
 {
 
-    String prompt = "Niemand hat die Absicht eine Mauer zu errichten. ";
+    String prompt = "Niemand hat die Absicht eine Mauer zu bauen! Nur einen Raumtrenner - mit Tür!";
     final String SPLIT_REGEX = " ";
 
     final boolean TRAIN = true;
@@ -22,10 +21,11 @@ public class App
     final int TRANSFORMER_BLOCK_AMOUNT = 1;
     final int CONTEXT_WINDOW = 100;
     final int BATCH_SIZE = 32;
-    final int TRAIN_LINES = 1000;
-    final int EPOCHS = 5;
+    final int TRAIN_LINES = 5;
+    final int EPOCHS = 1;
 
     final double SIGMA = 0.02;
+    final double TRAIN_TEMPERATURE = 1.0;
     final double TEMPERATURE = 1.0;
     final double LEARNING_RATE = 1e-5;
     final double WARM_UP_RATE = 0.1;
@@ -46,13 +46,13 @@ public class App
             System.out.println("Training model with parameters..");
             double finalLoss = app.trainModel();
             System.out.println("------------------------------");
-            System.out.println("Final loss after "+app.EPOCHS + " epochs: " + finalLoss);
+            System.out.println("Final loss after " + app.EPOCHS + " epochs: " + finalLoss);
         }
     }
 
-    public double trainModel() throws FileNotFoundException {
+    public double trainModel() throws IOException {
         double loss = -1.0;
-        Trainer trainer = new Trainer(BATCH_SIZE, LEARNING_RATE, WARM_UP_RATE, TRAIN_LINES, SPLIT_REGEX);
+        Trainer trainer = new Trainer(BATCH_SIZE, LEARNING_RATE, WARM_UP_RATE, TRAIN_LINES, SPLIT_REGEX, TRAIN_TEMPERATURE);
         for (int i = 0; i < EPOCHS; i++) {
             loss = trainer.train();
         }
@@ -67,9 +67,11 @@ public class App
             if(prompt.length() > CONTEXT_WINDOW) {
                 prompt = prompt.substring(prompt.length() - CONTEXT_WINDOW - 1, prompt.length() - 1);
             }
-            nextWord = forwardPass(prompt);
+            nextWord = inferenceForwardPass(prompt);
             if(nextWord.equals("<eos>")) {
                 break;
+            } else if(nextWord.equals("<null>")) {
+                nextWord = " ";
             }
             generatedText += nextWord + " ";
             prompt += nextWord + " ";
@@ -78,7 +80,7 @@ public class App
         return generatedText;
     }
 
-    public String forwardPass(String prompt) throws IOException {
+    public String inferenceForwardPass(String prompt) throws IOException {
         PositionalTokenizer tokenizer = new PositionalTokenizer(this.START_SEED, SIGMA, TOKEN_COUNT, EMBEDDING_DIMENSIONS, SPLIT_REGEX);
         RealMatrix posEmbeddings = tokenizer.embeddSentence(prompt);
         RealMatrix encodingOutputEmbeddings = posEmbeddings.copy();
@@ -91,8 +93,26 @@ public class App
         }
 
         SoftmaxTokenPredictor tokenPredictor = new SoftmaxTokenPredictor(tokenizer.getVocabulary(), this.START_SEED, SIGMA, ATTENTION_HEADS);
-        String nextWord = tokenPredictor.predictNextToken(encodingOutputEmbeddings, TEMPERATURE);
+        RealMatrix softmaxResult = tokenPredictor.generateSoftmaxResult(encodingOutputEmbeddings, TEMPERATURE);
+        String nextWord = tokenPredictor.predictNextToken(softmaxResult);
         this.START_SEED = 41;
         return nextWord;
+    }
+
+    public RealMatrix trainForwardPass(String prompt) throws  IOException {
+        PositionalTokenizer tokenizer = new PositionalTokenizer(this.START_SEED, SIGMA, TOKEN_COUNT, EMBEDDING_DIMENSIONS, SPLIT_REGEX);
+        RealMatrix posEmbeddings = tokenizer.embeddSentence(prompt);
+        RealMatrix encodingOutputEmbeddings = posEmbeddings.copy();
+        for (int transformerBlock = 0; transformerBlock < TRANSFORMER_BLOCK_AMOUNT; transformerBlock++) {
+            int blockSeed = this.START_SEED + transformerBlock * 100;
+            MultiHeadAttentionProcessor multiHeadAttentionProcessor = new MultiHeadAttentionProcessor(blockSeed, SIGMA, EMBEDDING_DIMENSIONS, PARALLELIZED);
+            FeedForwardProcessor feedforwarder = new FeedForwardProcessor(blockSeed, ATTENTION_HEADS);
+            RealMatrix attentionEmbeddings = multiHeadAttentionProcessor.forwardMultiHead(ATTENTION_HEADS, encodingOutputEmbeddings, transformerBlock);
+            encodingOutputEmbeddings = feedforwarder.forward(attentionEmbeddings, FEED_FORWARD_DIMENSIONS, transformerBlock);
+        }
+
+        SoftmaxTokenPredictor tokenPredictor = new SoftmaxTokenPredictor(tokenizer.getVocabulary(), this.START_SEED, SIGMA, ATTENTION_HEADS);
+        RealMatrix softmaxResult = tokenPredictor.generateSoftmaxResult(encodingOutputEmbeddings, TEMPERATURE);
+        return softmaxResult;
     }
 }

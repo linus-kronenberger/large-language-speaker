@@ -18,8 +18,7 @@ public class SoftmaxTokenPredictor {
     this.seed = seed + attentionHeads * 3 + 3;
     this.sigma = sigma;
   }
-  public String predictNextToken(RealMatrix meanEmbeddings, double temperature) throws IOException {
-    String nextToken = "";
+  public RealMatrix generateSoftmaxResult(RealMatrix meanEmbeddings, double temperature) throws IOException {
     String predictionLinearHeadFilePath = "./model/transformer/prediction_weights/linear_head.txt";
     RealMatrix linearHead = Utils.buildMatrixIfNotExists(seed, sigma, meanEmbeddings.getColumnDimension(), vocabulary.size(), predictionLinearHeadFilePath);
     
@@ -29,6 +28,12 @@ public class SoftmaxTokenPredictor {
     RealMatrix softmaxResult = Utils.calculateSoftmax(headResult, temperature);
     System.out.println("calculated softmax result: ");
     Utils.printMatrix((Array2DRowRealMatrix) softmaxResult, true);
+    return softmaxResult;
+  }
+
+  public String predictNextToken(RealMatrix softmaxResult) {
+    String nextToken = "";
+
     List<Double> consideredOutputs = new ArrayList<>();
     for (int column = 0; column < softmaxResult.getColumnDimension(); column++) {
       double softmaxEntry = softmaxResult.getEntry(softmaxResult.getRowDimension() - 1, column);

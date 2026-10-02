@@ -16,18 +16,27 @@ public class Trainer {
   private String splitRegex;
   private int givenSentenceLength = 5;
   private int minWordCount = 20;
+  private double trainTemperature;
 
-  public Trainer(int BATCH_SIZE, double LEARNING_RATE, double WARM_UP_RATE, int TRAIN_LINES, String splitRegex) {
+  public Trainer(int BATCH_SIZE, double LEARNING_RATE, double WARM_UP_RATE, int TRAIN_LINES, String splitRegex, double trainTemperature) {
     this.batchSize = BATCH_SIZE;
     this.learningRate = LEARNING_RATE;
     this.warmupRate = WARM_UP_RATE;
     this.trainLines = TRAIN_LINES;
     this.splitRegex = splitRegex;
+    this.trainTemperature = trainTemperature;
   }
 
-  public double train() throws FileNotFoundException {
+  public double train() throws IOException {
+    App app = new App();
     System.out.println("Starting Training...");
     Map<String, String> trainingLookup = createTrainingDataset();
+    for (int i = 0; i < trainingLookup.keySet().size(); i++) {
+      String prompt = trainingLookup.keySet().stream().toList().get(i);
+      String expectedToken = trainingLookup.get(prompt).substring(prompt.length(), trainingLookup.get(prompt).length());
+      System.out.println("prompt: " + prompt + " expected token: " + expectedToken);
+      // String nextToken = app.forwardPass((String) );
+    }
     double loss = -1.0;
     return loss;
   }
@@ -72,9 +81,6 @@ public class Trainer {
           trainingDataLookupPointer.put(firstKey, firstValue);
         }
         else {
-          // String firstKey = vocabWords.get(0);
-          // String firstValue = firstKey + " " + vocabWords.get(1);
-          // trainingDataLookupPointer.put(firstKey, firstValue);
           continue;
         }
 
