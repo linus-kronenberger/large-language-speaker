@@ -53,7 +53,7 @@ public class App
             System.out.println("Training model with parameters..");
             double finalLoss = app.trainModel();
             System.out.println("------------------------------");
-            System.out.println("Final loss after " + app.EPOCHS + " epochs: " + finalLoss);
+            System.out.println("Final mean cross entropy loss after " + app.EPOCHS + " epochs: " + finalLoss);
         }
     }
 

@@ -29,7 +29,7 @@ public class Trainer {
   }
 
   public double train() throws IOException {
-    double crossEntropyLoss = -1.0;
+    double meanCrossEntropyLoss = 0.0;
     App app = new App();
     System.out.println("Starting Training...");
     Map<String, String> trainingLookup = createTrainingDataset();
@@ -44,13 +44,14 @@ public class Trainer {
       // create one-hot-vector
       int correctIndex = app.getIndexForToken(expectedToken);
       RealMatrix oneHotVector = createOneHotVector(correctIndex, softmaxResult.getColumnDimension());
-      crossEntropyLoss = Utils.calculateCrossEntropyLoss(oneHotVector, softmaxResult);
+      double crossEntropyLoss = Utils.calculateCrossEntropyLoss(oneHotVector, softmaxResult);
       System.out.println("Cross Entropy Loss: " + crossEntropyLoss);
+      meanCrossEntropyLoss += crossEntropyLoss;
       System.out.println("One-hot vector: ");
       Utils.printMatrix((Array2DRowRealMatrix) oneHotVector, true);
       RealMatrix differenceSoftmaxMatrix = softmaxResult.subtract(oneHotVector);
     }
-    return crossEntropyLoss;
+    return meanCrossEntropyLoss / trainingLookup.keySet().size();
   }
 
   public RealMatrix createOneHotVector(int correctIndex, int tokenCount) {
