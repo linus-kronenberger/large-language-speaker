@@ -16,12 +16,14 @@ public class PositionalTokenizer {
   private final int seed;
   private final double sigma;
   private Map<String, Integer> vocabulary;
+  private String splitRegex;
 
-  public PositionalTokenizer(int seed, double sigma, int tokenCount, int dimensions) {
+  public PositionalTokenizer(int seed, double sigma, int tokenCount, int dimensions, String splitRegex) {
     this.seed = seed;
     this.sigma = sigma;
     this.tokenCount = tokenCount;
     this.dimensions = dimensions;
+    this.splitRegex = splitRegex;
     System.out.println("---------POSITIONAL TOKENIZER LAYER---------");
   }
 
@@ -96,8 +98,8 @@ public class PositionalTokenizer {
     try (BufferedReader reader = new BufferedReader(new FileReader(DATA_FILE_PATH))) {
       while ((line = reader.readLine()) != null) {
         System.out.println(line);
-        List<String> vocabWords = List.of(line.split(" "));
-        vocabWords.parallelStream().forEachOrdered(word -> {
+        List<String> vocabWords = List.of(line.split(splitRegex));
+        vocabWords.forEach(word -> {
           if(!vocabulary.containsKey(word)) {
             vocabulary.put(word, wordIndex.get());
             System.out.println("Added token to vocabulary: " + wordIndex + "   " + word);

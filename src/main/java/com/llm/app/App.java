@@ -1,28 +1,34 @@
 package com.llm.app;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.apache.commons.math3.linear.RealMatrix;
 
 public class App 
 {
+
+    String prompt = "Niemand hat die Absicht eine Mauer zu errichten. ";
+    final String SPLIT_REGEX = " ";
+
+    final boolean TRAIN = true;
+    final boolean PARALLELIZED = true;
+
     final int TOKEN_COUNT = 100;
     final int EMBEDDING_DIMENSIONS = 120;
     final int ATTENTION_HEADS = 12;
     private int START_SEED = 1;
-    final double SIGMA = 0.02;
-    final boolean PARALLELIZED = true;
     final int FEED_FORWARD_DIMENSIONS = 4 * EMBEDDING_DIMENSIONS;
     final int MAX_OUTPUT_TOKEN_AMOUNT = 10;
-    final double TEMPERATURE = 1.0;
     final int TRANSFORMER_BLOCK_AMOUNT = 1;
     final int CONTEXT_WINDOW = 100;
-    final boolean TRAIN = false;
-    String prompt = "Niemand hat die Absicht eine Mauer zu errichten. ";
     final int BATCH_SIZE = 32;
-    final double LEARNING_RATE = 1e-5;
-    final double WARM_UP_RATE = 0.1;
     final int TRAIN_LINES = 1000;
     final int EPOCHS = 5;
+
+    final double SIGMA = 0.02;
+    final double TEMPERATURE = 1.0;
+    final double LEARNING_RATE = 1e-5;
+    final double WARM_UP_RATE = 0.1;
 
     static void main() throws IOException {
         App app = new App();
@@ -40,13 +46,13 @@ public class App
             System.out.println("Training model with parameters..");
             double finalLoss = app.trainModel();
             System.out.println("------------------------------");
-            System.out.println("Final loss: " + finalLoss);
+            System.out.println("Final loss after "+app.EPOCHS + " epochs: " + finalLoss);
         }
     }
 
-    public double trainModel() {
-        double loss = 1.0;
-        Trainer trainer = new Trainer(BATCH_SIZE, LEARNING_RATE, WARM_UP_RATE, TRAIN_LINES);
+    public double trainModel() throws FileNotFoundException {
+        double loss = -1.0;
+        Trainer trainer = new Trainer(BATCH_SIZE, LEARNING_RATE, WARM_UP_RATE, TRAIN_LINES, SPLIT_REGEX);
         for (int i = 0; i < EPOCHS; i++) {
             loss = trainer.train();
         }
@@ -73,7 +79,7 @@ public class App
     }
 
     public String forwardPass(String prompt) throws IOException {
-        PositionalTokenizer tokenizer = new PositionalTokenizer(this.START_SEED, SIGMA, TOKEN_COUNT, EMBEDDING_DIMENSIONS);
+        PositionalTokenizer tokenizer = new PositionalTokenizer(this.START_SEED, SIGMA, TOKEN_COUNT, EMBEDDING_DIMENSIONS, SPLIT_REGEX);
         RealMatrix posEmbeddings = tokenizer.embeddSentence(prompt);
         RealMatrix encodingOutputEmbeddings = posEmbeddings.copy();
         for (int transformerBlock = 0; transformerBlock < TRANSFORMER_BLOCK_AMOUNT; transformerBlock++) {
