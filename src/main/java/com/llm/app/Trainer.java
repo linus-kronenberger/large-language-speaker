@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Trainer {
   private int batchSize;
@@ -15,6 +14,8 @@ public class Trainer {
   private double warmupRate;
   private int trainLines;
   private String splitRegex;
+  private int givenSentenceLength = 5;
+  private int minWordCount = 20;
 
   public Trainer(int BATCH_SIZE, double LEARNING_RATE, double WARM_UP_RATE, int TRAIN_LINES, String splitRegex) {
     this.batchSize = BATCH_SIZE;
@@ -33,35 +34,68 @@ public class Trainer {
 
   // todo: Implement batch size
 
-  public Map<String, String> createTrainingDataset() throws FileNotFoundException {
+  public Map<String, String> createTrainingDataset() {
     Map<String, String> trainingDataLookup = new LinkedHashMap<>();
     String DATA_FILE_PATH = "./dataset/speeches.csv";
     String line = "";
-    AtomicInteger count = new AtomicInteger(0);
+    int countLines = 0;
     try (BufferedReader reader = new BufferedReader(new FileReader(DATA_FILE_PATH))) {
+      reader.readLine();
+      reader.readLine();
       while ((line = reader.readLine()) != null) {
+
         Map<String, String> trainingDataLookupPointer = new LinkedHashMap<>();
         List<String> vocabWords = List.of(line.split(splitRegex));
-        for (int i = 0; i < vocabWords.size() - 1; i++) {
-          if(trainingDataLookupPointer.keySet().toArray().length == 0) {
-            trainingDataLookupPointer.put(vocabWords.get(i), vocabWords.get(i) + " " + vocabWords.get(i + 1));
-          } else {
-            String key = trainingDataLookupPointer.get(trainingDataLookupPointer.keySet().stream().toList().get(i-1))
-                + " " + vocabWords.get(i);
-            String value = key + " " + vocabWords.get(i + 1);
-            trainingDataLookupPointer.put(key, value);
-          }
+
+        if(vocabWords.size() < minWordCount) {
+          continue;
         }
-        count.getAndIncrement();
-        if(count.intValue() == trainLines) {
+
+        // First add the given sentence
+        if(vocabWords.size() == 1) {
+          continue;
+        }
+        else if(vocabWords.size() > givenSentenceLength) {
+          String concatSentence = "";
+          for (int i = 0; i < givenSentenceLength; i++) {
+            if(i == givenSentenceLength - 1) {
+              concatSentence += vocabWords.get(i);
+            } else {
+              concatSentence += vocabWords.get(i) + " ";
+            }
+
+          }
+
+          String firstKey = concatSentence;
+          String firstValue = concatSentence + " " + vocabWords.get(givenSentenceLength);
+
+          trainingDataLookupPointer.put(firstKey, firstValue);
+        }
+        else {
+          // String firstKey = vocabWords.get(0);
+          // String firstValue = firstKey + " " + vocabWords.get(1);
+          // trainingDataLookupPointer.put(firstKey, firstValue);
+          continue;
+        }
+
+        String currentKey = trainingDataLookupPointer.values().iterator().next();
+        int contextSize = (vocabWords.size() > givenSentenceLength) ? givenSentenceLength : 1;
+        for (int i = contextSize + 1; i < vocabWords.size(); i++) {
+          String value = currentKey + " " + vocabWords.get(i);
+          trainingDataLookupPointer.put(currentKey, value);
+          currentKey = value;
+        }
+        countLines++;
+        trainingDataLookup.putAll(trainingDataLookupPointer);
+        if(countLines == trainLines) {
           break;
         }
-        trainingDataLookup.putAll(trainingDataLookupPointer);
       }
 
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+    System.out.println(trainingDataLookup);
     return trainingDataLookup;
   }
 }
