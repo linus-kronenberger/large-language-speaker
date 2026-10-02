@@ -286,4 +286,12 @@ public class Utils {
     }
     return result;
   }
+
+  public static double calculateCrossEntropyLoss(RealMatrix oneHotVector, RealMatrix softmaxResult) {
+    double sum = 0.0;
+    for (int i = 0; i < oneHotVector.getColumnDimension(); i++) {
+      sum += oneHotVector.getEntry(0, i) * Math.log(softmaxResult.getEntry(0, i));
+    }
+    return (-1.0) * sum;
+  }
 }
