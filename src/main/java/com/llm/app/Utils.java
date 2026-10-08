@@ -251,6 +251,7 @@ public class Utils {
   }
 
   public static RealMatrix performRMSNormalization(RealMatrix matrix, RealMatrix gamma, double epsilon) {
+    // RMS normalization (used in LLama/GPT models)
     int rows = matrix.getRowDimension();
     int cols = matrix.getColumnDimension();
     RealMatrix normalizedMatrix = new Array2DRowRealMatrix(rows, cols);
