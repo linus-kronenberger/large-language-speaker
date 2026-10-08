@@ -17,6 +17,7 @@ public class AttentionTask implements Callable<RealMatrix> {
   private RealMatrix keyWeights;
   private RealMatrix valueWeights;
 
+
   public AttentionTask(int seed, double sigma, int head, int dimensions, int multiHeadLayers, RealMatrix posEmbeddings, int transformerBlock) {
     this.seed = seed;
     this.sigma = sigma;

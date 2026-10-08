@@ -41,6 +41,7 @@ public class Trainer {
       System.out.println("prompt: " + prompt + " expected token: " + expectedToken);
       RealMatrix softmaxResult = app.trainForwardPass(prompt);
       softmaxResult = softmaxResult.getRowMatrix(softmaxResult.getRowDimension() - 1);
+
       // create one-hot-vector
       int correctIndex = app.getIndexForToken(expectedToken);
       RealMatrix oneHotVector = createOneHotVector(correctIndex, softmaxResult.getColumnDimension());
@@ -48,8 +49,7 @@ public class Trainer {
       System.out.println("Cross Entropy Loss: " + crossEntropyLoss);
       meanCrossEntropyLoss += crossEntropyLoss;
       System.out.println("One-hot vector: ");
-      Utils.printMatrix((Array2DRowRealMatrix) oneHotVector, true);
-      RealMatrix differenceSoftmaxMatrix = softmaxResult.subtract(oneHotVector);
+      Utils.printMatrix((Array2DRowRealMatrix) oneHotVector);
     }
     return meanCrossEntropyLoss / trainingLookup.keySet().size();
   }
