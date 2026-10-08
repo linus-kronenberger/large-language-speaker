@@ -12,6 +12,7 @@ public class SoftmaxTokenPredictor {
   private final Map<String, Integer> vocabulary;
   private int seed;
   private final double sigma;
+  private RealMatrix linearHead;
 
   public SoftmaxTokenPredictor(Map<String, Integer> vocabulary, int seed, double sigma) {
     this.vocabulary = vocabulary;
@@ -20,7 +21,7 @@ public class SoftmaxTokenPredictor {
   }
   public RealMatrix generateSoftmaxResult(RealMatrix meanEmbeddings, double temperature) throws IOException {
     String predictionLinearHeadFilePath = "./model/transformer/prediction_weights/linear_head.txt";
-    RealMatrix linearHead = Utils.buildMatrixIfNotExists(seed, sigma, meanEmbeddings.getColumnDimension(), vocabulary.size(), predictionLinearHeadFilePath);
+    this.linearHead = Utils.buildMatrixIfNotExists(seed, sigma, meanEmbeddings.getColumnDimension(), vocabulary.size(), predictionLinearHeadFilePath);
     this.seed += 1;
     
     RealMatrix headResult = Utils.multipleMatrices(meanEmbeddings, linearHead);

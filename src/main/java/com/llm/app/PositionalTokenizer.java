@@ -17,6 +17,7 @@ public class PositionalTokenizer {
   private final double sigma;
   private Map<String, Integer> vocabulary;
   private String splitRegex;
+  private RealMatrix embeddingMatrix;
 
   public PositionalTokenizer(int seed, double sigma, int tokenCount, int dimensions, String splitRegex) {
     this.seed = seed;
@@ -30,7 +31,7 @@ public class PositionalTokenizer {
   public RealMatrix embeddSentence(String sentence) throws IOException {
     this.vocabulary = buildVocabulary();
     String EMBEDDING_FILE_PATH = "./model/transformer/embedding_lookup/embedding_matrix.txt";
-    RealMatrix embeddingMatrix = Utils.buildMatrixIfNotExists(seed, sigma, vocabulary.keySet().size(), dimensions,
+    this.embeddingMatrix = Utils.buildMatrixIfNotExists(seed, sigma, vocabulary.keySet().size(), dimensions,
         EMBEDDING_FILE_PATH);
     this.seed += 1;
     List<String> wordList = List.of(sentence.split(" |(\\n)"));

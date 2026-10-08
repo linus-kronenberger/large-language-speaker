@@ -17,6 +17,7 @@ public class MultiHeadAttentionProcessor {
   private final int dimensions;
   private final boolean parallelized;
   private RealMatrix gamma;
+  private RealMatrix w0Matrix;
 
   public MultiHeadAttentionProcessor(int seed, double sigma, int dimensions, boolean parallelized) {
     this.seed = seed;
@@ -64,7 +65,7 @@ public class MultiHeadAttentionProcessor {
     long multiFinishTime = System.nanoTime();
     long multiElapsedTime = multiFinishTime - multiStartTime;
     System.out.println("Measured multi head attention time: " + multiElapsedTime);
-    RealMatrix w0Matrix = Utils.buildMatrixIfNotExists(seed, sigma, dimensions, dimensions, "./model/transformer" + transformerBlock
+    this.w0Matrix = Utils.buildMatrixIfNotExists(seed, sigma, dimensions, dimensions, "./model/transformer" + transformerBlock
         + "/attention_weights/w0.txt");
     this.seed += 1;
     attentionResultMatrix = Utils.multipleMatrices(attentionResultMatrix, w0Matrix);
