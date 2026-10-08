@@ -32,7 +32,11 @@ public class Utils {
       for(int i=0; i < rows; i++) {
         // embeddingMatrix.setEntry(i, 0, i);
         for (int j = 0; j < columns; j++) {
-          double n = r.nextGaussian() * sigma;
+          double gaussian = r.nextGaussian();
+          if(gaussian == 0.0) {
+            gaussian = Double.MIN_VALUE;
+          }
+          double n = gaussian * sigma;
           embeddingMatrix.setEntry(i, j, n);
         }
       }
@@ -216,26 +220,14 @@ public class Utils {
     return matrix;
   }
 
-  public static RealMatrix concatenateMatricesHorizontally(RealMatrix matrix1, RealMatrix matrix2) {
+  public static RealMatrix concatenateMatricesHorizontally(RealMatrix matrix1, RealMatrix matrix2, int startIndex) {
     RealMatrix resMatrix = matrix1.copy();
     System.out.println("Concatenating matrices.");
     printMatrix((Array2DRowRealMatrix) resMatrix);
 
-    // first search for index
-    int emptyIndex = -1;
-    for (int i = 0; i < resMatrix.getColumnDimension(); i++) {
-      if(resMatrix.getEntry(0, i) == 0.0) {
-        emptyIndex = i;
-        break;
-      }
-    }
-    if(emptyIndex == -1) {
-      System.out.println("Matrix 1 is already full. Concatenation with matrix 2 not possible.");
-    }
-
     for (int row = 0; row < resMatrix.getRowDimension(); row++) {
       int secondColumn = 0;
-      for (int column = emptyIndex; column < emptyIndex + matrix2.getColumnDimension(); column++) {
+      for (int column = startIndex; column < startIndex + matrix2.getColumnDimension(); column++) {
         resMatrix.setEntry(row, column, matrix2.getEntry(row, secondColumn));
         secondColumn ++;
       }

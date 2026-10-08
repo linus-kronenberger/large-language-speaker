@@ -47,9 +47,12 @@ public class MultiHeadAttentionProcessor {
         results.add(executorService.submit(task));
       }
 
+      int startIndex = 0;
+
       for (Future<RealMatrix> result : results) {
         try {
-          attentionResultMatrix = Utils.concatenateMatricesHorizontally(attentionResultMatrix, result.get());
+          attentionResultMatrix = Utils.concatenateMatricesHorizontally(attentionResultMatrix, result.get(), startIndex);
+          startIndex += result.get().getColumnDimension();
         } catch (InterruptedException | ExecutionException e) {
           throw new RuntimeException(e);
         }
