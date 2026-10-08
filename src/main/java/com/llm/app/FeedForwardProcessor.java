@@ -5,15 +5,19 @@ import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 
 public class FeedForwardProcessor {
-  private final int seed;
+  private int seed;
+  private RealMatrix gamma;
+  private RealMatrix hiddenWeights;
+  private RealMatrix finalWeights;
 
   public FeedForwardProcessor(int seed, int attentionHeads) {
-    this.seed = seed + attentionHeads * 3 + 1;
+    this.seed = seed;
   }
 
   public RealMatrix forward(RealMatrix attentionEmbeddings, int feedForwardActivationDimension, int transformerBlock) throws IOException {
     String gammaPath = "./model/transformer"+transformerBlock+"/feed_forward_weights/gamma.txt";
-    RealMatrix gamma = Utils.buildMatrixIfNotExists(seed + 1, 0.02, attentionEmbeddings.getColumnDimension(), 1, gammaPath);
+    this.gamma = Utils.buildMatrixIfNotExists(seed, 0.02, attentionEmbeddings.getColumnDimension(), 1, gammaPath);
+    this.seed += 1;
     RealMatrix normalized = Utils.performRMSNormalization(attentionEmbeddings, gamma, 1e-5);
 
     System.out.println("---------FEED FORWARD LAYER---------");
@@ -21,8 +25,9 @@ public class FeedForwardProcessor {
     RealMatrix feededMatrix;
     String hiddenWeightsFilePath = "./model/transformer"+transformerBlock+"/feed_forward_weights/hidden_weights.txt";
 
-    RealMatrix hiddenWeights = Utils.buildMatrixIfNotExists(seed, 0.02,
+    this.hiddenWeights = Utils.buildMatrixIfNotExists(seed, 0.02,
         normalized.getColumnDimension(), feedForwardActivationDimension, hiddenWeightsFilePath);
+    this.seed += 1;
     RealMatrix hiddenLayerResult = Utils.multipleMatrices(normalized, hiddenWeights);
     hiddenLayerResult = Utils.performReLuActivation(hiddenLayerResult);
 
@@ -30,9 +35,14 @@ public class FeedForwardProcessor {
     Utils.printMatrix((Array2DRowRealMatrix) hiddenLayerResult, true);
     String finalFeedForwardFilePath = "./model/transformer"+transformerBlock+"/feed_forward_weights/final_weights.txt";
 
-    RealMatrix finalWeights = Utils.buildMatrixIfNotExists(seed + 2, 0.02, hiddenLayerResult.getColumnDimension(), normalized.getColumnDimension(), finalFeedForwardFilePath);
+    this.finalWeights = Utils.buildMatrixIfNotExists(seed, 0.02, hiddenLayerResult.getColumnDimension(), normalized.getColumnDimension(), finalFeedForwardFilePath);
+    this.seed += 1;
     feededMatrix = Utils.multipleMatrices(hiddenLayerResult, finalWeights);
     RealMatrix resultMatrix = attentionEmbeddings.add(feededMatrix);
     return resultMatrix;
+  }
+
+  public int getSeed() {
+    return seed;
   }
 }

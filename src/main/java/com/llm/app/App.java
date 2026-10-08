@@ -15,7 +15,7 @@ public class App
     final int TOKEN_COUNT = 50;
     final int EMBEDDING_DIMENSIONS = 10;
     final int ATTENTION_HEADS = 2;
-    private int START_SEED = 1;
+    private int seedIndex = 1;
     final int FEED_FORWARD_DIMENSIONS = 4 * EMBEDDING_DIMENSIONS;
     final int MAX_OUTPUT_TOKEN_AMOUNT = 10;
     final int TRANSFORMER_BLOCK_AMOUNT = 1;
@@ -34,7 +34,7 @@ public class App
     private PositionalTokenizer tokenizer;
 
     public App() {
-        this.tokenizer = new PositionalTokenizer(this.START_SEED, SIGMA, TOKEN_COUNT, EMBEDDING_DIMENSIONS, SPLIT_REGEX);
+        this.tokenizer = new PositionalTokenizer(this.seedIndex, SIGMA, TOKEN_COUNT, EMBEDDING_DIMENSIONS, SPLIT_REGEX);
     }
 
     static void main() throws IOException {
@@ -89,19 +89,21 @@ public class App
 
     public String inferenceForwardPass(String prompt) throws IOException {
         RealMatrix posEmbeddings = tokenizer.embeddSentence(prompt);
+        this.seedIndex = tokenizer.getSeed();
         RealMatrix encodingOutputEmbeddings = posEmbeddings.copy();
         for (int transformerBlock = 0; transformerBlock < TRANSFORMER_BLOCK_AMOUNT; transformerBlock++) {
-            int blockSeed = this.START_SEED + transformerBlock * 100;
-            MultiHeadAttentionProcessor multiHeadAttentionProcessor = new MultiHeadAttentionProcessor(blockSeed, SIGMA, EMBEDDING_DIMENSIONS, PARALLELIZED);
-            FeedForwardProcessor feedforwarder = new FeedForwardProcessor(blockSeed, ATTENTION_HEADS);
+            MultiHeadAttentionProcessor multiHeadAttentionProcessor = new MultiHeadAttentionProcessor(seedIndex, SIGMA, EMBEDDING_DIMENSIONS, PARALLELIZED);
             RealMatrix attentionEmbeddings = multiHeadAttentionProcessor.forwardMultiHead(ATTENTION_HEADS, encodingOutputEmbeddings, transformerBlock);
+            this.seedIndex = multiHeadAttentionProcessor.getSeed();
+            FeedForwardProcessor feedforwarder = new FeedForwardProcessor(seedIndex, ATTENTION_HEADS);
             encodingOutputEmbeddings = feedforwarder.forward(attentionEmbeddings, FEED_FORWARD_DIMENSIONS, transformerBlock);
+            this.seedIndex = feedforwarder.getSeed();
         }
 
-        SoftmaxTokenPredictor tokenPredictor = new SoftmaxTokenPredictor(tokenizer.getVocabulary(), this.START_SEED, SIGMA, ATTENTION_HEADS);
+        SoftmaxTokenPredictor tokenPredictor = new SoftmaxTokenPredictor(tokenizer.getVocabulary(), this.seedIndex, SIGMA);
         RealMatrix softmaxResult = tokenPredictor.generateSoftmaxResult(encodingOutputEmbeddings, TEMPERATURE);
+        this.seedIndex = tokenPredictor.getSeed();
         String nextWord = tokenPredictor.predictNextToken(softmaxResult);
-        this.START_SEED = 41;
         return nextWord;
     }
 
@@ -109,15 +111,17 @@ public class App
         RealMatrix posEmbeddings = tokenizer.embeddSentence(prompt);
         RealMatrix encodingOutputEmbeddings = posEmbeddings.copy();
         for (int transformerBlock = 0; transformerBlock < TRANSFORMER_BLOCK_AMOUNT; transformerBlock++) {
-            int blockSeed = this.START_SEED + transformerBlock * 100;
-            MultiHeadAttentionProcessor multiHeadAttentionProcessor = new MultiHeadAttentionProcessor(blockSeed, SIGMA, EMBEDDING_DIMENSIONS, PARALLELIZED);
-            FeedForwardProcessor feedforwarder = new FeedForwardProcessor(blockSeed, ATTENTION_HEADS);
+            MultiHeadAttentionProcessor multiHeadAttentionProcessor = new MultiHeadAttentionProcessor(seedIndex, SIGMA, EMBEDDING_DIMENSIONS, PARALLELIZED);
             RealMatrix attentionEmbeddings = multiHeadAttentionProcessor.forwardMultiHead(ATTENTION_HEADS, encodingOutputEmbeddings, transformerBlock);
+            seedIndex = multiHeadAttentionProcessor.getSeed();
+            FeedForwardProcessor feedforwarder = new FeedForwardProcessor(seedIndex, ATTENTION_HEADS);
             encodingOutputEmbeddings = feedforwarder.forward(attentionEmbeddings, FEED_FORWARD_DIMENSIONS, transformerBlock);
+            seedIndex = feedforwarder.getSeed();
         }
 
-        SoftmaxTokenPredictor tokenPredictor = new SoftmaxTokenPredictor(tokenizer.getVocabulary(), this.START_SEED, SIGMA, ATTENTION_HEADS);
+        SoftmaxTokenPredictor tokenPredictor = new SoftmaxTokenPredictor(tokenizer.getVocabulary(), this.seedIndex, SIGMA);
         RealMatrix softmaxResult = tokenPredictor.generateSoftmaxResult(encodingOutputEmbeddings, TEMPERATURE);
+        this.seedIndex = tokenPredictor.getSeed();
         return softmaxResult;
     }
 

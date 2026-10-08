@@ -13,14 +13,13 @@ import org.apache.commons.math3.linear.RealMatrix;
 public class MultiHeadAttentionProcessor {
 
   private int seed;
-  private final int startSeed;
   private final double sigma;
   private final int dimensions;
   private final boolean parallelized;
+  private RealMatrix gamma;
 
   public MultiHeadAttentionProcessor(int seed, double sigma, int dimensions, boolean parallelized) {
     this.seed = seed;
-    this.startSeed = seed;
     this.sigma = sigma;
     this.dimensions = dimensions;
     this.parallelized = parallelized;
@@ -28,7 +27,8 @@ public class MultiHeadAttentionProcessor {
 
   public RealMatrix forwardMultiHead(int multiHeadLayers, RealMatrix posEmbeddings, int transformerBlock) throws IOException {
     String gammaPath = "./model/transformer" + transformerBlock + "/attention_weights/gamma.txt";
-    RealMatrix gamma = Utils.buildMatrixIfNotExists(seed + 1, 0.02, posEmbeddings.getColumnDimension(), 1, gammaPath);
+    this.gamma = Utils.buildMatrixIfNotExists(seed, 0.02, posEmbeddings.getColumnDimension(), 1, gammaPath);
+    this.seed += 1;
     RealMatrix normalized = Utils.performRMSNormalization(posEmbeddings, gamma, 1e-5);
 
     ExecutorService executorService = Executors.newFixedThreadPool(parallelized ? multiHeadLayers : 1);
@@ -42,8 +42,8 @@ public class MultiHeadAttentionProcessor {
 
     try {
       for (int i = 0; i < multiHeadLayers; i++) {
-        seed = startSeed + i * 3;
         AttentionTask task = new AttentionTask(seed, sigma, i, dimensions, multiHeadLayers, normalized, transformerBlock);
+        this.seed += 3;
         results.add(executorService.submit(task));
       }
 
@@ -64,10 +64,15 @@ public class MultiHeadAttentionProcessor {
     long multiFinishTime = System.nanoTime();
     long multiElapsedTime = multiFinishTime - multiStartTime;
     System.out.println("Measured multi head attention time: " + multiElapsedTime);
-    seed += 1;
-    attentionResultMatrix = Utils.multipleMatrices(attentionResultMatrix, Utils.buildMatrixIfNotExists(seed, sigma, dimensions, dimensions, "./model/transformer" + transformerBlock
-        + "/attention_weights/w0.txt"));
+    RealMatrix w0Matrix = Utils.buildMatrixIfNotExists(seed, sigma, dimensions, dimensions, "./model/transformer" + transformerBlock
+        + "/attention_weights/w0.txt");
+    this.seed += 1;
+    attentionResultMatrix = Utils.multipleMatrices(attentionResultMatrix, w0Matrix);
     RealMatrix resultMatrix = posEmbeddings.add(attentionResultMatrix);
     return resultMatrix;
+  }
+
+  public int getSeed() {
+    return seed;
   }
 }

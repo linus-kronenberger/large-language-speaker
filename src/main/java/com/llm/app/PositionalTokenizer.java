@@ -13,7 +13,7 @@ import org.apache.commons.math3.linear.RealMatrix;
 public class PositionalTokenizer {
   private final int tokenCount;
   private final int dimensions;
-  private final int seed;
+  private int seed;
   private final double sigma;
   private Map<String, Integer> vocabulary;
   private String splitRegex;
@@ -32,6 +32,7 @@ public class PositionalTokenizer {
     String EMBEDDING_FILE_PATH = "./model/transformer/embedding_lookup/embedding_matrix.txt";
     RealMatrix embeddingMatrix = Utils.buildMatrixIfNotExists(seed, sigma, vocabulary.keySet().size(), dimensions,
         EMBEDDING_FILE_PATH);
+    this.seed += 1;
     List<String> wordList = List.of(sentence.split(" |(\\n)"));
     RealMatrix tokenPosEmbeddings = new Array2DRowRealMatrix(wordList.size(), dimensions);
 
@@ -130,5 +131,9 @@ public class PositionalTokenizer {
       return 0;
     }
     return vocabulary.get(expectedToken);
+  }
+
+  public int getSeed() {
+    return seed;
   }
 }

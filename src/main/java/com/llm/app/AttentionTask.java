@@ -13,6 +13,9 @@ public class AttentionTask implements Callable<RealMatrix> {
   private int seed;
   private final double sigma;
   private int transformerBlock = 0;
+  private RealMatrix queryWeights;
+  private RealMatrix keyWeights;
+  private RealMatrix valueWeights;
 
   public AttentionTask(int seed, double sigma, int head, int dimensions, int multiHeadLayers, RealMatrix posEmbeddings, int transformerBlock) {
     this.seed = seed;
@@ -27,11 +30,11 @@ public class AttentionTask implements Callable<RealMatrix> {
   @Override
   public RealMatrix call() throws Exception {
     System.out.println("Building Multi Head Attention Layer: " + head);
-    RealMatrix queryWeights = buildQueryMatrix(dimensions, (dimensions / multiHeadLayers), head);
+    this.queryWeights = buildQueryMatrix(dimensions, (dimensions / multiHeadLayers), head);
     Utils.printMatrix((Array2DRowRealMatrix) queryWeights);
-    RealMatrix keyWeights = buildKeyMatrix(dimensions, (dimensions / multiHeadLayers), head);
+    this.keyWeights = buildKeyMatrix(dimensions, (dimensions / multiHeadLayers), head);
     Utils.printMatrix((Array2DRowRealMatrix) keyWeights);
-    RealMatrix valueWeights = buildValueMatrix(dimensions, (dimensions / multiHeadLayers), head);
+    this.valueWeights = buildValueMatrix(dimensions, (dimensions / multiHeadLayers), head);
     Utils.printMatrix((Array2DRowRealMatrix) valueWeights);
 
     RealMatrix queryMatrix = Utils.multipleMatrices(posEmbeddings, queryWeights);
@@ -55,7 +58,6 @@ public class AttentionTask implements Callable<RealMatrix> {
 
   public RealMatrix buildQueryMatrix(int rows, int columns, int multiHeadLayer) {
     String queryFilePath = "./model/transformer"+transformerBlock+"/attention_weights/query_" + String.valueOf(multiHeadLayer) + ".txt";
-    this.seed += 1;
     return Utils.buildMatrixIfNotExists(seed, sigma, rows, columns, queryFilePath);
   }
 

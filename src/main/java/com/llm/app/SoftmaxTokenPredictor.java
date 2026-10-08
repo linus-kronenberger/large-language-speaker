@@ -10,17 +10,18 @@ import org.apache.commons.math3.linear.RealMatrix;
 
 public class SoftmaxTokenPredictor {
   private final Map<String, Integer> vocabulary;
-  private final int seed;
+  private int seed;
   private final double sigma;
 
-  public SoftmaxTokenPredictor(Map<String, Integer> vocabulary, int seed, double sigma, int attentionHeads) {
+  public SoftmaxTokenPredictor(Map<String, Integer> vocabulary, int seed, double sigma) {
     this.vocabulary = vocabulary;
-    this.seed = seed + attentionHeads * 3 + 3;
+    this.seed = seed;
     this.sigma = sigma;
   }
   public RealMatrix generateSoftmaxResult(RealMatrix meanEmbeddings, double temperature) throws IOException {
     String predictionLinearHeadFilePath = "./model/transformer/prediction_weights/linear_head.txt";
     RealMatrix linearHead = Utils.buildMatrixIfNotExists(seed, sigma, meanEmbeddings.getColumnDimension(), vocabulary.size(), predictionLinearHeadFilePath);
+    this.seed += 1;
     
     RealMatrix headResult = Utils.multipleMatrices(meanEmbeddings, linearHead);
     System.out.println("calculated head result: ");
@@ -72,5 +73,9 @@ public class SoftmaxTokenPredictor {
       }
     }
     return nextToken;
+  }
+
+  public int getSeed() {
+    return seed;
   }
 }
