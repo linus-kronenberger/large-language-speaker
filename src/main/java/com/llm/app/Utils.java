@@ -258,7 +258,7 @@ public class Utils {
     return resMatrix;
   }
 
-  public static RealMatrix performNormalization(RealMatrix matrix, double epsilon) {
+  public static RealMatrix performRMSNormalization(RealMatrix matrix, RealMatrix gamma, double epsilon) {
     int rows = matrix.getRowDimension();
     int cols = matrix.getColumnDimension();
     RealMatrix normalizedMatrix = new Array2DRowRealMatrix(rows, cols);
@@ -270,7 +270,7 @@ public class Utils {
       }
       double rms = Math.sqrt(sumSquares / cols + epsilon);
       for (int column = 0; column < cols; column++) {
-        normalizedMatrix.setEntry(row, column, matrix.getEntry(row, column) / rms);
+        normalizedMatrix.setEntry(row, column, gamma.getEntry(column, 0) * matrix.getEntry(row, column) / rms);
       }
     }
     return normalizedMatrix;

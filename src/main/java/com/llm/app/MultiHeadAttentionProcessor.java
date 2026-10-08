@@ -27,7 +27,9 @@ public class MultiHeadAttentionProcessor {
   }
 
   public RealMatrix forwardMultiHead(int multiHeadLayers, RealMatrix posEmbeddings, int transformerBlock) throws IOException {
-    RealMatrix normalized = Utils.performNormalization(posEmbeddings, 1e-5);
+    String gammaPath = "./model/transformer" + transformerBlock + "/attention_weights/gamma.txt";
+    RealMatrix gamma = Utils.buildMatrixIfNotExists(seed + 1, 0.02, posEmbeddings.getColumnDimension(), 1, gammaPath);
+    RealMatrix normalized = Utils.performRMSNormalization(posEmbeddings, gamma, 1e-5);
 
     ExecutorService executorService = Executors.newFixedThreadPool(parallelized ? multiHeadLayers : 1);
 

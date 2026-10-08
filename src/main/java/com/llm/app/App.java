@@ -9,7 +9,7 @@ public class App
     String prompt = "Niemand hat die Absicht eine Mauer zu bauen! Nur einen Raumtrenner - mit Tür!";
     final String SPLIT_REGEX = " ";
 
-    final boolean TRAIN = true;
+    final boolean TRAIN = false;
     final boolean PARALLELIZED = true;
 
     final int TOKEN_COUNT = 50;

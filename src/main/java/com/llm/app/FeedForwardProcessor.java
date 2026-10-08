@@ -12,7 +12,9 @@ public class FeedForwardProcessor {
   }
 
   public RealMatrix forward(RealMatrix attentionEmbeddings, int feedForwardActivationDimension, int transformerBlock) throws IOException {
-    RealMatrix normalized = Utils.performNormalization(attentionEmbeddings, 1e-5);
+    String gammaPath = "./model/transformer"+transformerBlock+"/feed_forward_weights/gamma.txt";
+    RealMatrix gamma = Utils.buildMatrixIfNotExists(seed + 1, 0.02, attentionEmbeddings.getColumnDimension(), 1, gammaPath);
+    RealMatrix normalized = Utils.performRMSNormalization(attentionEmbeddings, gamma, 1e-5);
 
     System.out.println("---------FEED FORWARD LAYER---------");
     System.out.println("start seed: " + seed);
@@ -28,7 +30,7 @@ public class FeedForwardProcessor {
     Utils.printMatrix((Array2DRowRealMatrix) hiddenLayerResult, true);
     String finalFeedForwardFilePath = "./model/transformer"+transformerBlock+"/feed_forward_weights/final_weights.txt";
 
-    RealMatrix finalWeights = Utils.buildMatrixIfNotExists(seed + 1, 0.02, hiddenLayerResult.getColumnDimension(), normalized.getColumnDimension(), finalFeedForwardFilePath);
+    RealMatrix finalWeights = Utils.buildMatrixIfNotExists(seed + 2, 0.02, hiddenLayerResult.getColumnDimension(), normalized.getColumnDimension(), finalFeedForwardFilePath);
     feededMatrix = Utils.multipleMatrices(hiddenLayerResult, finalWeights);
     RealMatrix resultMatrix = attentionEmbeddings.add(feededMatrix);
     return resultMatrix;
