@@ -4,8 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import org.apache.commons.math3.linear.RealMatrix;
 
-public class App 
-{
+public class App {
 
     String prompt = "Niemand hat die Absicht eine Mauer zu bauen! Nur einen Raumtrenner - mit Tür!";
     final String SPLIT_REGEX = " ";
@@ -38,7 +37,6 @@ public class App
     private SoftmaxTokenPredictor tokenPredictor;
 
     private int backpropBlockIndex = -1;
-
 
     public App() {
         this.tokenizer = new PositionalTokenizer(this.seedIndex, SIGMA, TOKEN_COUNT, EMBEDDING_DIMENSIONS, SPLIT_REGEX);
@@ -112,6 +110,32 @@ public class App
         this.seedIndex = tokenPredictor.getSeed();
         String nextWord = tokenPredictor.predictNextToken(softmaxResult);
         return nextWord;
+    }
+
+
+    public RealMatrix trainForwardPass(String prompt) throws IOException {
+        RealMatrix posEmbeddings = tokenizer.embeddSentence(prompt);
+        RealMatrix encodingOutputEmbeddings = posEmbeddings.copy();
+        for (int transformerBlock = 0; transformerBlock < TRANSFORMER_BLOCK_AMOUNT; transformerBlock++) {
+            MultiHeadAttentionProcessor multiHeadAttentionProcessor = new MultiHeadAttentionProcessor(seedIndex, SIGMA, EMBEDDING_DIMENSIONS, PARALLELIZED);
+            multiHeads.add(multiHeadAttentionProcessor);
+            RealMatrix attentionEmbeddings = multiHeadAttentionProcessor.forwardMultiHead(ATTENTION_HEADS, encodingOutputEmbeddings, transformerBlock);
+            seedIndex = multiHeadAttentionProcessor.getSeed();
+            FeedForwardProcessor feedforwarder = new FeedForwardProcessor(seedIndex, ATTENTION_HEADS);
+            feedForwards.add(feedforwarder);
+            encodingOutputEmbeddings = feedforwarder.forward(attentionEmbeddings, FEED_FORWARD_DIMENSIONS, transformerBlock);
+            seedIndex = feedforwarder.getSeed();
+            this.backpropBlockIndex = transformerBlock;
+        }
+
+        this.tokenPredictor = new SoftmaxTokenPredictor(tokenizer.getVocabulary(), this.seedIndex, SIGMA);
+        RealMatrix softmaxResult = tokenPredictor.generateSoftmaxResult(encodingOutputEmbeddings, TEMPERATURE);
+        this.seedIndex = tokenPredictor.getSeed();
+        return softmaxResult;
+    }
+
+    public int getIndexForToken(String expectedToken) {
+        return tokenizer.getIndexForToken(expectedToken);
     }
 
     public String getPrompt() {
@@ -232,30 +256,5 @@ public class App
 
     public void setTokenPredictor(SoftmaxTokenPredictor tokenPredictor) {
         this.tokenPredictor = tokenPredictor;
-    }
-
-    public RealMatrix trainForwardPass(String prompt) throws IOException {
-        RealMatrix posEmbeddings = tokenizer.embeddSentence(prompt);
-        RealMatrix encodingOutputEmbeddings = posEmbeddings.copy();
-        for (int transformerBlock = 0; transformerBlock < TRANSFORMER_BLOCK_AMOUNT; transformerBlock++) {
-            MultiHeadAttentionProcessor multiHeadAttentionProcessor = new MultiHeadAttentionProcessor(seedIndex, SIGMA, EMBEDDING_DIMENSIONS, PARALLELIZED);
-            multiHeads.add(multiHeadAttentionProcessor);
-            RealMatrix attentionEmbeddings = multiHeadAttentionProcessor.forwardMultiHead(ATTENTION_HEADS, encodingOutputEmbeddings, transformerBlock);
-            seedIndex = multiHeadAttentionProcessor.getSeed();
-            FeedForwardProcessor feedforwarder = new FeedForwardProcessor(seedIndex, ATTENTION_HEADS);
-            feedForwards.add(feedforwarder);
-            encodingOutputEmbeddings = feedforwarder.forward(attentionEmbeddings, FEED_FORWARD_DIMENSIONS, transformerBlock);
-            seedIndex = feedforwarder.getSeed();
-            this.backpropBlockIndex = transformerBlock;
-        }
-
-        this.tokenPredictor = new SoftmaxTokenPredictor(tokenizer.getVocabulary(), this.seedIndex, SIGMA);
-        RealMatrix softmaxResult = tokenPredictor.generateSoftmaxResult(encodingOutputEmbeddings, TEMPERATURE);
-        this.seedIndex = tokenPredictor.getSeed();
-        return softmaxResult;
-    }
-
-    public int getIndexForToken(String expectedToken) {
-        return tokenizer.getIndexForToken(expectedToken);
     }
 }

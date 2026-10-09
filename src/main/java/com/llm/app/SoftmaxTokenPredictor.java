@@ -19,6 +19,7 @@ public class SoftmaxTokenPredictor {
     this.seed = seed;
     this.sigma = sigma;
   }
+
   public RealMatrix generateSoftmaxResult(RealMatrix meanEmbeddings, double temperature) throws IOException {
     String predictionLinearHeadFilePath = "./model/transformer/prediction_weights/linear_head.txt";
     this.linearHead = Utils.buildMatrixIfNotExists(seed, sigma, meanEmbeddings.getColumnDimension(), vocabulary.size(), predictionLinearHeadFilePath);
