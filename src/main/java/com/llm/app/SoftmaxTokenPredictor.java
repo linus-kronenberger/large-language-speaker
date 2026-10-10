@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import jdk.jshell.execution.Util;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 
@@ -13,6 +14,7 @@ public class SoftmaxTokenPredictor {
   private int seed;
   private final double sigma;
   private RealMatrix linearHead;
+  private RealMatrix meanEmbeddings;
 
   public SoftmaxTokenPredictor(Map<String, Integer> vocabulary, int seed, double sigma) {
     this.vocabulary = vocabulary;
@@ -21,6 +23,7 @@ public class SoftmaxTokenPredictor {
   }
 
   public RealMatrix generateSoftmaxResult(RealMatrix meanEmbeddings, double temperature) throws IOException {
+    this.meanEmbeddings = meanEmbeddings;
     String predictionLinearHeadFilePath = "./model/transformer/prediction_weights/linear_head.txt";
     this.linearHead = Utils.buildMatrixIfNotExists(seed, sigma, meanEmbeddings.getColumnDimension(), vocabulary.size(), predictionLinearHeadFilePath);
     this.seed += 1;
@@ -79,5 +82,17 @@ public class SoftmaxTokenPredictor {
 
   public int getSeed() {
     return seed;
+  }
+
+  public void backward(RealMatrix softmaxResult, RealMatrix oneHotVector, double learningRate, double trainTemperature) throws IOException {
+    if(trainTemperature <= 0) {
+      throw new IllegalArgumentException("temperature must be > 0 during tarining");
+    }
+    RealMatrix X = this.meanEmbeddings.getRowMatrix(this.meanEmbeddings.getRowDimension() - 1);
+    RealMatrix Z = softmaxResult;
+    RealMatrix dZ = Z.subtract(oneHotVector).scalarMultiply(1.0 / trainTemperature);
+    RealMatrix dW = Utils.multipleMatrices(X.transpose(), dZ);
+    this.linearHead = this.linearHead.subtract(dW.scalarMultiply(learningRate));
+    Utils.overrideFileMatrix("./model/transformer/prediction_weights/linear_head.txt", this.linearHead);
   }
 }

@@ -1,6 +1,7 @@
 package com.llm.app;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.math3.linear.RealMatrix;
 
@@ -9,7 +10,7 @@ public class App {
     String prompt = "Niemand hat die Absicht eine Mauer zu bauen! Nur einen Raumtrenner - mit Tür!";
     final String SPLIT_REGEX = " ";
 
-    final boolean TRAIN = false;
+    final boolean TRAIN = true;
     final boolean PARALLELIZED = true;
 
     final int TOKEN_COUNT = 50;
@@ -22,7 +23,7 @@ public class App {
     final int CONTEXT_WINDOW = 100;
     final int BATCH_SIZE = 32;
     final int TRAIN_LINES = 5;
-    final int EPOCHS = 1;
+    final int EPOCHS = 10;
 
     final double SIGMA = 0.02;
     final double TRAIN_TEMPERATURE = 1.0;
@@ -32,8 +33,8 @@ public class App {
     final double WARM_UP_RATE = 0.1;
 
     private PositionalTokenizer tokenizer;
-    private List<MultiHeadAttentionProcessor> multiHeads;
-    private List<FeedForwardProcessor> feedForwards;
+    private List<MultiHeadAttentionProcessor> multiHeads = new ArrayList<>();
+    private List<FeedForwardProcessor> feedForwards = new ArrayList<>();
     private SoftmaxTokenPredictor tokenPredictor;
 
     private int backpropBlockIndex = -1;
@@ -100,7 +101,7 @@ public class App {
             MultiHeadAttentionProcessor multiHeadAttentionProcessor = new MultiHeadAttentionProcessor(seedIndex, SIGMA, EMBEDDING_DIMENSIONS, PARALLELIZED);
             RealMatrix attentionEmbeddings = multiHeadAttentionProcessor.forwardMultiHead(ATTENTION_HEADS, encodingOutputEmbeddings, transformerBlock);
             this.seedIndex = multiHeadAttentionProcessor.getSeed();
-            FeedForwardProcessor feedforwarder = new FeedForwardProcessor(seedIndex, ATTENTION_HEADS);
+            FeedForwardProcessor feedforwarder = new FeedForwardProcessor(seedIndex);
             encodingOutputEmbeddings = feedforwarder.forward(attentionEmbeddings, FEED_FORWARD_DIMENSIONS, transformerBlock);
             this.seedIndex = feedforwarder.getSeed();
         }
@@ -121,7 +122,7 @@ public class App {
             multiHeads.add(multiHeadAttentionProcessor);
             RealMatrix attentionEmbeddings = multiHeadAttentionProcessor.forwardMultiHead(ATTENTION_HEADS, encodingOutputEmbeddings, transformerBlock);
             seedIndex = multiHeadAttentionProcessor.getSeed();
-            FeedForwardProcessor feedforwarder = new FeedForwardProcessor(seedIndex, ATTENTION_HEADS);
+            FeedForwardProcessor feedforwarder = new FeedForwardProcessor(seedIndex);
             feedForwards.add(feedforwarder);
             encodingOutputEmbeddings = feedforwarder.forward(attentionEmbeddings, FEED_FORWARD_DIMENSIONS, transformerBlock);
             seedIndex = feedforwarder.getSeed();

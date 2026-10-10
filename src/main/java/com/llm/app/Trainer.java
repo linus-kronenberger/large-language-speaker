@@ -33,6 +33,8 @@ public class Trainer {
     App app = new App();
     System.out.println("Starting Training...");
     Map<String, String> trainingLookup = createTrainingDataset();
+
+    // train loop
     for (int i = 0; i < trainingLookup.keySet().size(); i++) {
       String prompt = trainingLookup.keySet().stream().toList().get(i);
       String expectedToken = trainingLookup.get(prompt)
@@ -50,6 +52,7 @@ public class Trainer {
       meanCrossEntropyLoss += crossEntropyLoss;
       System.out.println("One-hot vector: ");
       Utils.printMatrix((Array2DRowRealMatrix) oneHotVector);
+      app.getTokenPredictor().backward(softmaxResult, oneHotVector, learningRate, trainTemperature);
     }
     return meanCrossEntropyLoss / trainingLookup.keySet().size();
   }

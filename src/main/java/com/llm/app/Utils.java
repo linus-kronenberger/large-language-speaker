@@ -16,6 +16,30 @@ import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 
 public class Utils {
+  public static void overrideFileMatrix(String filePath, RealMatrix matrix) {
+    System.out.println("overriding matrix in filePath: " + filePath);
+    // store matrix in file under filePath
+    File file = new File(filePath);
+    File parent = file.getParentFile();
+    if(parent != null) {
+      parent.mkdirs();
+    }
+    int rows = matrix.getRowDimension();
+    int columns = matrix.getColumnDimension();
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+      for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < columns; j++) {
+          writer.write(String.valueOf(matrix.getEntry(i, j) + " "));
+        }
+        if(i <= rows - 2) {
+          writer.newLine();
+        }
+      }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   public static RealMatrix buildMatrixIfNotExists(int seed, double sigma, int rows, int columns, String filePath) {
     // fallback: take matrix from ./model path if available
     RealMatrix fileMatrix = loadEmbeddingMatrixFromFilePath(rows, columns, filePath);

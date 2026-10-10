@@ -10,7 +10,7 @@ public class FeedForwardProcessor {
   private RealMatrix hiddenWeights;
   private RealMatrix finalWeights;
 
-  public FeedForwardProcessor(int seed, int attentionHeads) {
+  public FeedForwardProcessor(int seed) {
     this.seed = seed;
   }
 
