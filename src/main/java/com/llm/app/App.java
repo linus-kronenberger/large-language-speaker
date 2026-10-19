@@ -199,6 +199,10 @@ public class App {
         return BATCH_SIZE;
     }
 
+    public int getBackpropBlockIndex() {
+        return backpropBlockIndex;
+    }
+
     public int getTRAIN_LINES() {
         return TRAIN_LINES;
     }

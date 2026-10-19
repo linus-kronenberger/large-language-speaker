@@ -33,7 +33,7 @@ public class Trainer {
     App app = new App();
     System.out.println("Starting Training...");
     Map<String, String> trainingLookup = createTrainingDataset();
-
+    
     // train loop
     for (int i = 0; i < trainingLookup.keySet().size(); i++) {
       String prompt = trainingLookup.keySet().stream().toList().get(i);
@@ -47,13 +47,25 @@ public class Trainer {
       // create one-hot-vector
       int correctIndex = app.getIndexForToken(expectedToken);
       RealMatrix oneHotVector = createOneHotVector(correctIndex, softmaxResult.getColumnDimension());
-      double crossEntropyLoss = Utils.calculateCrossEntropyLoss(oneHotVector, softmaxResult);
-      System.out.println("Cross Entropy Loss: " + crossEntropyLoss);
-      meanCrossEntropyLoss += crossEntropyLoss;
       System.out.println("One-hot vector: ");
       Utils.printMatrix((Array2DRowRealMatrix) oneHotVector);
-      app.getTokenPredictor().backward(softmaxResult, oneHotVector, learningRate, trainTemperature);
+      RealMatrix dx = app.getTokenPredictor().backward(softmaxResult, oneHotVector, learningRate, trainTemperature);
+      int backwardIndex = app.getBackpropBlockIndex();
+      for (int j = backwardIndex; j >= 0 ; j--) {
+        FeedForwardProcessor feedForwardProcessor = app.getFeedForwards().get(j);
+        RealMatrix dx2 = feedForwardProcessor.backward(dx);
+        MultiHeadAttentionProcessor multiHeadAttentionProcessor = app.getMultiHeads().get(j);
+        dx = multiHeadAttentionProcessor.backward(dx2);
+      }
+
+      // calculate loss after training
+      softmaxResult = app.trainForwardPass(prompt);
+      softmaxResult = softmaxResult.getRowMatrix(softmaxResult.getRowDimension() - 1);
+      double crossEntropyLoss = Utils.calculateCrossEntropyLoss(oneHotVector, softmaxResult);
+      meanCrossEntropyLoss += crossEntropyLoss;
+      System.out.println("Mean Cross Entropy Loss (step " + i + "): " + meanCrossEntropyLoss / (i + 1));
     }
+
     return meanCrossEntropyLoss / trainingLookup.keySet().size();
   }
 

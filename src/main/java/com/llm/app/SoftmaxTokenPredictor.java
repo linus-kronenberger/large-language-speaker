@@ -84,15 +84,22 @@ public class SoftmaxTokenPredictor {
     return seed;
   }
 
-  public void backward(RealMatrix softmaxResult, RealMatrix oneHotVector, double learningRate, double trainTemperature) throws IOException {
+  public RealMatrix backward(RealMatrix softmaxResult, RealMatrix oneHotVector, double learningRate, double trainTemperature) throws IOException {
     if(trainTemperature <= 0) {
       throw new IllegalArgumentException("temperature must be > 0 during tarining");
     }
+
+    // calculate gradient
     RealMatrix X = this.meanEmbeddings.getRowMatrix(this.meanEmbeddings.getRowDimension() - 1);
     RealMatrix Z = softmaxResult;
+
     RealMatrix dZ = Z.subtract(oneHotVector).scalarMultiply(1.0 / trainTemperature);
     RealMatrix dW = Utils.multipleMatrices(X.transpose(), dZ);
+    RealMatrix dX = Utils.multipleMatrices(dZ, this.linearHead.transpose());
+
+    // update weight matrix
     this.linearHead = this.linearHead.subtract(dW.scalarMultiply(learningRate));
     Utils.overrideFileMatrix("./model/transformer/prediction_weights/linear_head.txt", this.linearHead);
+    return dX;
   }
 }

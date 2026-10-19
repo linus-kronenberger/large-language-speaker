@@ -76,4 +76,8 @@ public class MultiHeadAttentionProcessor {
   public int getSeed() {
     return seed;
   }
+
+  public RealMatrix backward(RealMatrix dx) {
+    return new Array2DRowRealMatrix();
+  }
 }
