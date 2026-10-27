@@ -7,20 +7,20 @@ import java.util.*
 
 class SoftmaxTokenPredictor(
     private val vocabulary: MutableMap<String?, Int?>,
-    @kotlin.jvm.JvmField var seed: Int,
+    var seed: Int,
     private val sigma: Double
 ) {
     private var linearHead: RealMatrix? = null
     private var meanEmbeddings: RealMatrix? = null
 
-    @kotlin.Throws(IOException::class)
+    @Throws(IOException::class)
     fun generateSoftmaxResult(meanEmbeddings: RealMatrix, temperature: Double): RealMatrix {
         this.meanEmbeddings = meanEmbeddings
         val predictionLinearHeadFilePath = "./model/transformer/prediction_weights/linear_head.txt"
         this.linearHead = Utils.buildMatrixIfNotExists(
             seed,
             sigma,
-            meanEmbeddings.getColumnDimension(),
+            meanEmbeddings.columnDimension,
             vocabulary.size,
             predictionLinearHeadFilePath
         )
@@ -39,8 +39,8 @@ class SoftmaxTokenPredictor(
         var nextToken: String? = ""
 
         val consideredOutputs: MutableList<Double?> = ArrayList<Double?>()
-        for (column in 0..<softmaxResult.getColumnDimension()) {
-            var softmaxEntry = softmaxResult.getEntry(softmaxResult.getRowDimension() - 1, column)
+        for (column in 0..<softmaxResult.columnDimension) {
+            var softmaxEntry = softmaxResult.getEntry(softmaxResult.rowDimension - 1, column)
             softmaxEntry += column.toDouble()
             consideredOutputs.add(softmaxEntry)
         }
@@ -50,15 +50,15 @@ class SoftmaxTokenPredictor(
         var cum = 0.0
         var nextTokenIndex = 0
         for (i in consideredOutputs.indices) {
-            var entry: Double = consideredOutputs.get(i)!!
+            var entry: Double = consideredOutputs[i]!!
             if (entry - i <= 0.0) {
                 continue
             }
             var index = 0
-            for (j in 0..<softmaxResult.getColumnDimension()) {
+            for (j in 0..<softmaxResult.columnDimension) {
                 if ((entry - j - 1) <= 0) {
                     index = j
-                    entry = entry - j
+                    entry -= j
                     break
                 }
             }
@@ -68,9 +68,9 @@ class SoftmaxTokenPredictor(
                 break
             }
         }
-        println("Predicted next token index: " + nextTokenIndex)
+        println("Predicted next token index: $nextTokenIndex")
         for (i in vocabulary.keys.indices) {
-            if (vocabulary.get(vocabulary.keys.toTypedArray()[i]) == nextTokenIndex) {
+            if (vocabulary[vocabulary.keys.toTypedArray()[i]] == nextTokenIndex) {
                 nextToken = vocabulary.keys.toTypedArray()[i].toString()
                 break
             }
@@ -78,7 +78,7 @@ class SoftmaxTokenPredictor(
         return nextToken
     }
 
-    @kotlin.Throws(IOException::class)
+    @Throws(IOException::class)
     fun backward(
         softmaxResult: RealMatrix,
         oneHotVector: RealMatrix?,
@@ -88,11 +88,10 @@ class SoftmaxTokenPredictor(
         require(!(trainTemperature <= 0)) { "temperature must be > 0 during tarining" }
 
         // calculate gradient
-        val X = this.meanEmbeddings!!.getRowMatrix(this.meanEmbeddings!!.getRowDimension() - 1)
-        val Z = softmaxResult
+        val x = this.meanEmbeddings!!.getRowMatrix(this.meanEmbeddings!!.rowDimension - 1)
 
-        val dZ = Z.subtract(oneHotVector).scalarMultiply(1.0 / trainTemperature)
-        val dW = Utils.multipleMatrices(X.transpose(), dZ)
+        val dZ = softmaxResult.subtract(oneHotVector).scalarMultiply(1.0 / trainTemperature)
+        val dW = Utils.multipleMatrices(x.transpose(), dZ)
         val dX = Utils.multipleMatrices(dZ, this.linearHead!!.transpose())
 
         // update weight matrix

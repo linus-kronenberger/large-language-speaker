@@ -5,7 +5,6 @@ import org.apache.commons.math3.linear.RealMatrix
 import java.io.BufferedReader
 import java.io.FileReader
 import java.io.IOException
-import java.util.List
 
 class Trainer(
     private val batchSize: Int,
@@ -28,34 +27,34 @@ class Trainer(
 
         // train loop
         for (i in trainingLookup.keys.indices) {
-            val prompt = trainingLookup.keys.stream().toList().get(i)
-            val expectedToken = trainingLookup.get(prompt)!!
+            val prompt = trainingLookup.keys.toList()[i]
+            val expectedToken = trainingLookup[prompt]!!
                 .substring(prompt.length)
                 .trim { it <= ' ' }
-            println("prompt: " + prompt + " expected token: " + expectedToken)
+            println("prompt: $prompt expected token: $expectedToken")
             var softmaxResult = app.trainForwardPass(prompt)
-            softmaxResult = softmaxResult.getRowMatrix(softmaxResult.getRowDimension() - 1)
+            softmaxResult = softmaxResult.getRowMatrix(softmaxResult.rowDimension - 1)
 
             // create one-hot-vector
-            val correctIndex = app.getIndexForToken(expectedToken)
-            val oneHotVector = createOneHotVector(correctIndex, softmaxResult.getColumnDimension())
+            val correctIndex = app.indexForToken(expectedToken)
+            val oneHotVector = createOneHotVector(correctIndex, softmaxResult.columnDimension)
             println("One-hot vector: ")
             Utils.printMatrix(oneHotVector as Array2DRowRealMatrix)
-            var dx = app.getTokenPredictor().backward(softmaxResult, oneHotVector, learningRate, trainTemperature)
+            var dx = app.tokenPredictor.backward(softmaxResult, oneHotVector, learningRate, trainTemperature)
             val backwardIndex = app.backpropBlockIndex
             for (j in backwardIndex downTo 0) {
-                val feedForwardProcessor = app.feedForwards.get(j)
+                val feedForwardProcessor = app.feedForwards[j]
                 val dx2 = feedForwardProcessor!!.backward(dx)
-                val multiHeadAttentionProcessor = app.multiHeads.get(j)
+                val multiHeadAttentionProcessor = app.multiHeads[j]
                 dx = multiHeadAttentionProcessor!!.backward(dx2)
             }
 
             // calculate loss after training
             softmaxResult = app.trainForwardPass(prompt)
-            softmaxResult = softmaxResult.getRowMatrix(softmaxResult.getRowDimension() - 1)
+            softmaxResult = softmaxResult.getRowMatrix(softmaxResult.rowDimension - 1)
             val crossEntropyLoss = Utils.calculateCrossEntropyLoss(oneHotVector, softmaxResult)
             meanCrossEntropyLoss += crossEntropyLoss
-            println("Mean Cross Entropy Loss (step " + i + "): " + meanCrossEntropyLoss / (i + 1))
+            println("Mean Cross Entropy Loss (step $i): ${meanCrossEntropyLoss / (i + 1)}")
         }
 
         return meanCrossEntropyLoss / trainingLookup.keys.size
@@ -69,7 +68,7 @@ class Trainer(
 
     // todo: Implement batch size
     fun createTrainingDataset(): MutableMap<String, String?> {
-        val trainingDataLookup: MutableMap<String, String?> = LinkedHashMap<String, String?>()
+        val trainingDataLookup: MutableMap<String, String?> = LinkedHashMap()
         val DATA_FILE_PATH = "./dataset/speeches.csv"
         var line: String? = ""
         var countLines = 0
@@ -93,25 +92,25 @@ class Trainer(
                         var concatSentence = ""
                         for (i in 0..<givenSentenceLength) {
                             if (i == givenSentenceLength - 1) {
-                                concatSentence += vocabWords.get(i)
+                                concatSentence = "$concatSentence${vocabWords[i]}"
                             } else {
-                                concatSentence += vocabWords.get(i) + " "
+                                concatSentence = "$concatSentence${vocabWords[i]} "
                             }
                         }
 
                         val firstKey = concatSentence
-                        val firstValue = concatSentence + " " + vocabWords.get(givenSentenceLength)
+                        val firstValue = "$concatSentence ${vocabWords[givenSentenceLength]}"
 
-                        trainingDataLookupPointer.put(firstKey, firstValue)
+                        trainingDataLookupPointer[firstKey] = firstValue
                     } else {
                         continue
                     }
 
                     var currentKey = trainingDataLookupPointer.values.iterator().next()
-                    val contextSize = if (vocabWords.size > givenSentenceLength) givenSentenceLength else 1
+                    val contextSize = givenSentenceLength
                     for (i in contextSize + 1..<vocabWords.size) {
-                        val value = currentKey + " " + vocabWords.get(i)
-                        trainingDataLookupPointer.put(currentKey, value)
+                        val value = "$currentKey ${vocabWords[i]}"
+                        trainingDataLookupPointer[currentKey] = value
                         currentKey = value
                     }
                     countLines++

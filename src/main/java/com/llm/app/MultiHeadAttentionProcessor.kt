@@ -8,7 +8,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.Future
 
 class MultiHeadAttentionProcessor(
-  @JvmField var seed: Int,
+  var seed: Int,
   private val sigma: Double,
   private val dimensions: Int,
   private val parallelized: Boolean
@@ -18,8 +18,8 @@ class MultiHeadAttentionProcessor(
 
     @Throws(IOException::class)
     fun forwardMultiHead(multiHeadLayers: Int, posEmbeddings: RealMatrix, transformerBlock: Int): RealMatrix? {
-        val gammaPath = "./model/transformer" + transformerBlock + "/attention_weights/gamma.txt"
-        this.gamma = Utils.buildMatrixIfNotExists(seed, 0.02, posEmbeddings.getColumnDimension(), 1, gammaPath)
+        val gammaPath = "./model/transformer$transformerBlock/attention_weights/gamma.txt"
+        this.gamma = Utils.buildMatrixIfNotExists(seed, 0.02, posEmbeddings.columnDimension, 1, gammaPath)
         this.seed += 1
         val normalized = Utils.performRMSNormalization(posEmbeddings, gamma, 1e-5)
 
@@ -27,10 +27,10 @@ class MultiHeadAttentionProcessor(
 
         println("---------SELF ATTENTION LAYER---------")
 
-        var attentionResultMatrix: RealMatrix = Array2DRowRealMatrix(posEmbeddings.getRowDimension(), dimensions)
+        var attentionResultMatrix: RealMatrix = Array2DRowRealMatrix(posEmbeddings.rowDimension, dimensions)
         val results: MutableList<Future<RealMatrix?>> = ArrayList<Future<RealMatrix?>>()
         val multiStartTime = System.nanoTime()
-        println("Measuring multi head attention time. Starting at: " + multiStartTime)
+        println("Measuring multi head attention time. Starting at: $multiStartTime")
 
         try {
             for (i in 0..<multiHeadLayers) {
@@ -45,7 +45,7 @@ class MultiHeadAttentionProcessor(
                 try {
                     attentionResultMatrix =
                         Utils.concatenateMatricesHorizontally(attentionResultMatrix, result.get(), startIndex)
-                    startIndex += result.get()!!.getColumnDimension()
+                    startIndex += result.get()!!.columnDimension
                 } catch (e: InterruptedException) {
                     throw RuntimeException(e)
                 } catch (e: ExecutionException) {
@@ -58,10 +58,9 @@ class MultiHeadAttentionProcessor(
 
         val multiFinishTime = System.nanoTime()
         val multiElapsedTime = multiFinishTime - multiStartTime
-        println("Measured multi head attention time: " + multiElapsedTime)
+        println("Measured multi head attention time: $multiElapsedTime")
         this.w0Matrix = Utils.buildMatrixIfNotExists(
-            seed, sigma, dimensions, dimensions, ("./model/transformer" + transformerBlock
-                    + "/attention_weights/w0.txt")
+            seed, sigma, dimensions, dimensions, "./model/transformer$transformerBlock/attention_weights/w0.txt"
         )
         this.seed += 1
         attentionResultMatrix = Utils.multipleMatrices(attentionResultMatrix, w0Matrix)

@@ -29,25 +29,20 @@ class App {
     val learningRate: Double = 1e-5
     val warmUpRate: Double = 0.1
 
-    var tokenizer: PositionalTokenizer
-    @JvmField
-    var multiHeads: MutableList<MultiHeadAttentionProcessor?> = ArrayList<MultiHeadAttentionProcessor?>()
-    @JvmField
-    var feedForwards: MutableList<FeedForwardProcessor?> = ArrayList<FeedForwardProcessor?>()
-    private var tokenPredictor: SoftmaxTokenPredictor? = null
+    var tokenizer: PositionalTokenizer = PositionalTokenizer(
+        this.seedIndex,
+        this.sigma,
+        this.tokenCount,
+        this.embeddingDimensions,
+        this.splitRegex
+    )
+
+    var multiHeads: MutableList<MultiHeadAttentionProcessor?> = ArrayList()
+    var feedForwards: MutableList<FeedForwardProcessor?> = ArrayList()
+    lateinit var tokenPredictor: SoftmaxTokenPredictor
 
     var backpropBlockIndex: Int = -1
         private set
-
-    init {
-        this.tokenizer = PositionalTokenizer(
-            this.seedIndex,
-            this.sigma,
-            this.tokenCount,
-            this.embeddingDimensions,
-            this.splitRegex
-        )
-    }
 
     @Throws(IOException::class)
     fun trainModel(): Double {
@@ -60,7 +55,7 @@ class App {
             this.splitRegex,
             this.trainTemperature
         )
-        for (i in 0..<this.numEpochs) {
+        repeat(this.numEpochs) {
             loss = trainer.train()
         }
         return loss
@@ -70,9 +65,9 @@ class App {
     fun generateText(prompt: String): String {
         var prompt = prompt
         var generatedText = ""
-        var nextWord = ""
+        var nextWord: String
         var predictions = 0
-        while (nextWord != "<eos>" && predictions < this.maxOutputTokenAmount) {
+        while (predictions < this.maxOutputTokenAmount) {
             if (prompt.length > this.contextWindow) {
                 prompt = prompt.substring(prompt.length - this.contextWindow - 1, prompt.length - 1)
             }
@@ -82,8 +77,8 @@ class App {
             } else if (nextWord == "<null>") {
                 nextWord = " "
             }
-            generatedText += nextWord + " "
-            prompt += nextWord + " "
+            generatedText = "$generatedText$nextWord "
+            prompt = "$prompt$nextWord "
             predictions++
         }
         return generatedText
@@ -155,49 +150,37 @@ class App {
         }
 
         this.tokenPredictor = SoftmaxTokenPredictor(tokenizer.vocabulary!!, this.seedIndex, this.sigma)
-        val softmaxResult = tokenPredictor!!.generateSoftmaxResult(encodingOutputEmbeddings!!, this.inferenceTemperature)
-        this.seedIndex = tokenPredictor!!.seed
+        val softmaxResult = tokenPredictor.generateSoftmaxResult(encodingOutputEmbeddings!!, this.inferenceTemperature)
+        this.seedIndex = tokenPredictor.seed
         return softmaxResult
     }
 
-    fun getIndexForToken(expectedToken: String?): Int {
-        return tokenizer.getIndexForToken(expectedToken)
+    fun indexForToken(expectedToken: String?): Int {
+        return tokenizer.indexForToken(expectedToken)
     }
-
-    fun getTokenPredictor(): SoftmaxTokenPredictor {
-        return tokenPredictor!!
-    }
-
-    fun setTokenPredictor(tokenPredictor: SoftmaxTokenPredictor) {
-        this.tokenPredictor = tokenPredictor
-    }
-
-    companion object {
-
-}
 }
     @Throws(IOException::class)
-    fun main(args: Array<String>) {
+    fun main() {
         val app = App()
-        if (app.isTRAIN == false) {
+        if (!app.isTRAIN) {
             val tokenOutput = app.generateText(app.prompt)
             if (app.prompt.length > app.contextWindow) {
                 println("prompt was bigger than the maximum context window. Had to be cut directly..")
                 println(
-                    "User: " + app.prompt.substring(
+                    "User: ${app.prompt.substring(
                         app.prompt.length - app.contextWindow - 1,
                         app.prompt.length - 1
-                    )
+                    )}"
                 )
             } else {
-                println("User: " + app.prompt)
+                println("User: ${app.prompt}")
             }
             println("------------------------------")
-            println("Assistant: " + tokenOutput)
+            println("Assistant: $tokenOutput")
         } else {
             println("Training model with parameters..")
             val finalLoss = app.trainModel()
             println("------------------------------")
-            println("Final mean cross entropy loss after " + app.numEpochs + " epochs: " + finalLoss)
+            println("Final mean cross entropy loss after ${app.numEpochs} epochs: $finalLoss")
         }
     }

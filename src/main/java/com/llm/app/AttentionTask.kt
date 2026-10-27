@@ -25,7 +25,7 @@ class AttentionTask(
 
     @Throws(Exception::class)
     override fun call(): RealMatrix {
-        println("Building Multi Head Attention Layer: " + head)
+        println("Building Multi Head Attention Layer: $head")
         this.queryWeights = buildQueryMatrix(dimensions, (dimensions / multiHeadLayers), head)
         Utils.printMatrix(queryWeights as Array2DRowRealMatrix)
         this.keyWeights = buildKeyMatrix(dimensions, (dimensions / multiHeadLayers), head)
@@ -57,20 +57,20 @@ class AttentionTask(
 
     fun buildQueryMatrix(rows: Int, columns: Int, multiHeadLayer: Int): RealMatrix {
         val queryFilePath =
-            "./model/transformer" + transformerBlock + "/attention_weights/query_" + multiHeadLayer.toString() + ".txt"
+            "./model/transformer$transformerBlock/attention_weights/query_$multiHeadLayer.txt"
         return Utils.buildMatrixIfNotExists(seed, sigma, rows, columns, queryFilePath)
     }
 
     fun buildKeyMatrix(rows: Int, columns: Int, multiHeadLayer: Int): RealMatrix {
         val keyFilePath =
-            "./model/transformer" + transformerBlock + "/attention_weights/key_" + multiHeadLayer.toString() + ".txt"
+            "./model/transformer$transformerBlock/attention_weights/key_$multiHeadLayer.txt"
         this.seed += 1
         return Utils.buildMatrixIfNotExists(seed, sigma, rows, columns, keyFilePath)
     }
 
     fun buildValueMatrix(rows: Int, columns: Int, multiHeadLayer: Int): RealMatrix {
         val valueFilePath =
-            "./model/transformer" + transformerBlock + "/attention_weights/value_" + multiHeadLayer.toString() + ".txt"
+            "./model/transformer$transformerBlock/attention_weights/value_$multiHeadLayer.txt"
         this.seed += 1
         return Utils.buildMatrixIfNotExists(seed, sigma, rows, columns, valueFilePath)
     }
