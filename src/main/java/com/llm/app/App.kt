@@ -7,8 +7,8 @@ class App {
     var prompt: String = "Niemand hat die Absicht eine Mauer zu bauen! Nur einen Raumtrenner - mit Tür!"
     val splitRegex: String = " "
 
-    val isTRAIN: Boolean = false
-    val isPARALLELIZED: Boolean = true
+    val trainingActivated: Boolean = false
+    val parallelized: Boolean = true
 
     val tokenCount: Int = 50
     val embeddingDimensions: Int = 10
@@ -94,7 +94,7 @@ class App {
                 seedIndex,
                 this.sigma,
                 this.embeddingDimensions,
-                this.isPARALLELIZED
+                this.parallelized
             )
             val attentionEmbeddings = multiHeadAttentionProcessor.forwardMultiHead(
                 this.attentionHeads,
@@ -130,7 +130,7 @@ class App {
                 seedIndex,
                 this.sigma,
                 this.embeddingDimensions,
-                this.isPARALLELIZED
+                this.parallelized
             )
             multiHeads.add(multiHeadAttentionProcessor)
             val attentionEmbeddings = multiHeadAttentionProcessor.forwardMultiHead(
@@ -162,7 +162,7 @@ class App {
     @Throws(IOException::class)
     fun main() {
         val app = App()
-        if (!app.isTRAIN) {
+        if (!app.trainingActivated) {
             val tokenOutput = app.generateText(app.prompt)
             if (app.prompt.length > app.contextWindow) {
                 println("prompt was bigger than the maximum context window. Had to be cut directly..")
