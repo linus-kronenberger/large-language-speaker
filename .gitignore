@@ -33,3 +33,6 @@ bin/
 log
 target/
 model/
+
+### Codex ###
+/.codex/
